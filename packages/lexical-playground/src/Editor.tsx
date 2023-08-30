@@ -72,6 +72,7 @@ import YouTubePlugin from './plugins/YouTubePlugin';
 import PlaygroundEditorTheme from './themes/PlaygroundEditorTheme';
 import ContentEditable from './ui/ContentEditable';
 import Placeholder from './ui/Placeholder';
+import {HeadingMarkText} from "./plugins/HeadingMarkText";
 
 const skipCollaborationInit =
   // @ts-ignore
@@ -239,6 +240,7 @@ export default function Editor(): JSX.Element {
                 />
               </>
             )}
+            <HeadingMarkText />
           </>
         ) : (
           <>

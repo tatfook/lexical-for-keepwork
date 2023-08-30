@@ -44,6 +44,7 @@ export const IS_CODE = 1 << 4;
 export const IS_SUBSCRIPT = 1 << 5;
 export const IS_SUPERSCRIPT = 1 << 6;
 export const IS_HIGHLIGHT = 1 << 7;
+export const IS_MARK = 1 << 8;
 
 export const IS_ALL_FORMATTING =
   IS_BOLD |

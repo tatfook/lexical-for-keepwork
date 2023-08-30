@@ -188,3 +188,4 @@ export {$isRootNode, RootNode} from './nodes/LexicalRootNode';
 export type {SerializedTabNode} from './nodes/LexicalTabNode';
 export {$createTabNode, $isTabNode, TabNode} from './nodes/LexicalTabNode';
 export {$createTextNode, $isTextNode, TextNode} from './nodes/LexicalTextNode';
+export {$createMarkTextNode, $isMarkTextNode, MarkTextNode} from './nodes/LexicalMarkTextNode';
