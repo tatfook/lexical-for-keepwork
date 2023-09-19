@@ -269,6 +269,16 @@ function parseMarkdownString(parentNode, lines, byType) {
     i++;
   }
 }
+function clearEmptyParagraph(node) {
+  const children = node.getChildren();
+  for (const child of children) {
+    if (isEmptyParagraph(child)) {
+      child.remove();
+    } else if (lexical.$isElementNode(child)) {
+      clearEmptyParagraph(child);
+    }
+  }
+}
 function createMarkdownImport(transformers) {
   const byType = transformersByType(transformers);
   return (markdownString, node) => {
@@ -279,12 +289,7 @@ function createMarkdownImport(transformers) {
 
     // Removing empty paragraphs as md does not really
     // allow empty lines and uses them as dilimiter
-    const children = root.getChildren();
-    for (const child of children) {
-      if (isEmptyParagraph(child)) {
-        child.remove();
-      }
-    }
+    clearEmptyParagraph(root);
     if (lexical.$getSelection() !== null) {
       root.selectEnd();
     }
@@ -298,7 +303,14 @@ function isEmptyParagraph(node) {
   return firstChild == null || node.getChildrenSize() === 1 && lexical.$isTextNode(firstChild) && MARKDOWN_EMPTY_LINE_REG_EXP.test(firstChild.getTextContent());
 }
 function importBlocks(lineText, parentNode, elementTransformers, textFormatTransformersIndex, textMatchTransformers) {
-  const lineTextTrimmed = lineText.trim();
+  // it has to be trimEnd, otherwise it will remove the space at the beginning of the line
+  // for example ```html
+  // <style>
+  //   .markdown-body {
+  // 	 }
+  // </style>
+  // ```
+  const lineTextTrimmed = lineText.trimEnd();
   const textNode = lexical.$createTextNode(lineTextTrimmed);
   const elementNode = lexical.$createParagraphNode();
   elementNode.append(textNode);
@@ -996,6 +1008,10 @@ const LINK = {
       return linkContent;
     }
   },
+  // Excluding the case of image syntax
+  // trying to add (?:^|[^!]) to exclude image syntax
+  // This will affect the link length.
+  // Change `Hello[word](link)` to `Hell[word](link)`. The "o" is removed.
   importRegExp: /(?:\[([^[]+)\])(?:\((?:([^()\s]+)(?:\s"((?:[^"]*\\")*[^"]*)"\s*)?)\))/,
   regExp: /(?:\[([^[]+)\])(?:\((?:([^()\s]+)(?:\s"((?:[^"]*\\")*[^"]*)"\s*)?)\))$/,
   replace: (textNode, match) => {

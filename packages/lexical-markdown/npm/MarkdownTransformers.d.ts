@@ -11,6 +11,9 @@ export type ElementTransformer = {
     dependencies: Array<Klass<LexicalNode>>;
     export: (node: LexicalNode, traverseChildren: (node: ElementNode) => string) => string | null;
     getNumberOfLines?: (lines: Array<string>, startLineIndex: number) => number;
+    /**
+     * @deprecated
+     */
     getChildrenFromLines?: (lines: Array<string>) => Array<LexicalNode>;
     regExp: RegExp;
     /**
