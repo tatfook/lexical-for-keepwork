@@ -24,6 +24,7 @@ export type ElementTransformer = {
     closeRegExp?: RegExp;
     replace: (parentNode: ElementNode, children: Array<LexicalNode>, match: Array<string>, isImport: boolean) => void;
     type: 'element';
+    recursivelyParse?: boolean;
 };
 export type TextFormatTransformer = Readonly<{
     format: ReadonlyArray<TextFormatType>;

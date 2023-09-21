@@ -243,9 +243,16 @@ function parseMarkdownString(parentNode, lines, byType) {
           continue;
         }
         if (match) {
-          const elementNode = lexical.$createParagraphNode();
-          parentNode.append(elementNode);
-          parseMarkdownString(elementNode, lines.slice(i + 1, i + numberOfLines), byType);
+          if (elementTransformer.recursivelyParse) {
+            const elementNode = lexical.$createParagraphNode();
+            parentNode.append(elementNode);
+            parseMarkdownString(elementNode, lines.slice(i + 1, i + numberOfLines), byType);
+          } else {
+            const textNode = lexical.$createTextNode(lines.slice(i + 1, i + numberOfLines).join('\n'));
+            const elementNode = lexical.$createParagraphNode();
+            elementNode.append(textNode);
+            parentNode.append(elementNode);
+          }
           elementTransformer.replace(parentNode.getLastChild(), parentNode.getLastChild().getChildren(), match, true);
           i += numberOfLines;
           /**
