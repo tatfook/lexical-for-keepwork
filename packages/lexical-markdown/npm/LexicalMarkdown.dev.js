@@ -260,8 +260,17 @@ function parseMarkdownString(parentNode, lines, byType) {
            * just like
            * ``` of code block
            * ::: of tip block
+           *
+           * delete the line `lines[i].match(elementTransformer.regExp`
+           * ```
+           * code
+           * ```
+           * ```
+           * code
+           * ```
+           * when next line is ``` the code block will be parsed
            */
-          if (i < linesLength && (elementTransformer.closeRegExp && lines[i].match(elementTransformer.closeRegExp) || lines[i].match(elementTransformer.regExp))) {
+          if (i < linesLength && elementTransformer.closeRegExp && lines[i].match(elementTransformer.closeRegExp)) {
             i++;
           }
           isMatched = true;
@@ -892,6 +901,7 @@ const QUOTE = {
   type: 'element'
 };
 const CODE = {
+  closeRegExp: /^```$/,
   dependencies: [code.CodeNode],
   export: node => {
     if (!code.$isCodeNode(node)) {
