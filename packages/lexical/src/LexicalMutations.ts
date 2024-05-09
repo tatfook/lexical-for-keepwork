@@ -175,6 +175,10 @@ export function $flushMutations(
 
           for (let s = 0; s < addedDOMs.length; s++) {
             const addedDOM = addedDOMs[s];
+            if (editor._config.ignoreMutationDOMChanges &&
+              editor._config.ignoreMutationDOMChanges(addedDOM)) {
+              continue;
+            }
             const node = getNodeFromDOMNode(addedDOM);
             const parentDOM = addedDOM.parentNode;
 
@@ -206,7 +210,10 @@ export function $flushMutations(
 
             for (let s = 0; s < removedDOMsLength; s++) {
               const removedDOM = removedDOMs[s];
-
+              if (editor._config.ignoreMutationDOMChanges &&
+                editor._config.ignoreMutationDOMChanges(removedDOM)) {
+                continue;
+              }
               if (
                 (removedDOM.nodeName === 'BR' &&
                   isManagedLineBreak(removedDOM, targetDOM, editor)) ||

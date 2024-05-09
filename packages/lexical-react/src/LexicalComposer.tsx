@@ -53,6 +53,7 @@ export type InitialConfigType = Readonly<{
   editable?: boolean;
   theme?: EditorThemeClasses;
   editorState?: InitialEditorStateType;
+  ignoreMutationDOMChanges?: (node: Node) => boolean;
 }>;
 
 type Props = {
@@ -82,6 +83,7 @@ export function LexicalComposer({initialConfig, children}: Props): JSX.Element {
       if (editor === null) {
         const newEditor = createEditor({
           editable: initialConfig.editable,
+          ignoreMutationDOMChanges: initialConfig.ignoreMutationDOMChanges,
           namespace,
           nodes,
           onError: (error) => onError(error, newEditor),
