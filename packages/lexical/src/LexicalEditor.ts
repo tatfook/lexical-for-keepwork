@@ -140,6 +140,7 @@ export type EditorConfig = {
   disableEvents?: boolean;
   namespace: string;
   theme: EditorThemeClasses;
+  ignoreMutationDOMChanges?: (node: Node) => boolean;
 };
 
 export type CreateEditorArgs = {
@@ -162,6 +163,7 @@ export type CreateEditorArgs = {
   parentEditor?: LexicalEditor;
   editable?: boolean;
   theme?: EditorThemeClasses;
+  ignoreMutationDOMChanges?: (node: Node) => boolean;
 };
 
 export type RegisteredNodes = Map<string, RegisteredNode>;
@@ -478,6 +480,7 @@ export function createEditor(editorConfig?: CreateEditorArgs): LexicalEditor {
     registeredNodes,
     {
       disableEvents,
+      ignoreMutationDOMChanges: config.ignoreMutationDOMChanges,
       namespace,
       theme,
     },

@@ -123,6 +123,12 @@ function App(): JSX.Element {
       : emptyEditor
       ? undefined
       : prepopulatedRichText,
+    ignoreMutationDOMChanges: (node: Node) => {
+      if (node instanceof HTMLElement) {
+        return node.id === 'sider-code-explain';
+      }
+      return false
+    },
     namespace: 'Playground',
     nodes: [...PlaygroundNodes],
     onError: (error: Error) => {
