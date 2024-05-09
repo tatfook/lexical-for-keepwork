@@ -28,6 +28,7 @@ function AutoFocusPlugin({
       // of this plugin, which should preserve focus too.
       const activeElement = document.activeElement;
       const rootElement = editor.getRootElement();
+
       if (rootElement !== null && (activeElement === null || !rootElement.contains(activeElement))) {
         // Note: preventScroll won't work in Webkit.
         rootElement.focus({

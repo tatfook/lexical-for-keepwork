@@ -9,13 +9,13 @@
 var lexical = require('lexical');
 
 /** @module @lexical/headless */
-
 /**
  * Generates a headless editor that allows lexical to be used without the need for a DOM, eg in Node.js.
  * Throws an error when unsupported metehods are used.
  * @param editorConfig - The optional lexical editor configuration.
  * @returns - The configured headless editor.
  */
+
 function createHeadlessEditor(editorConfig) {
   const editor = lexical.createEditor(editorConfig);
   editor._headless = true;

@@ -21,6 +21,7 @@ export type InitialConfigType = Readonly<{
     editable?: boolean;
     theme?: EditorThemeClasses;
     editorState?: InitialEditorStateType;
+    ignoreMutationDOMChanges?: (node: Node) => boolean;
 }>;
 type Props = {
     children: JSX.Element | string | (JSX.Element | string)[];

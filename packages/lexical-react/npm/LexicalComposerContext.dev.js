@@ -18,26 +18,32 @@ var react = require('react');
 const LexicalComposerContext = /*#__PURE__*/react.createContext(null);
 function createLexicalComposerContext(parent, theme) {
   let parentContext = null;
+
   if (parent != null) {
     parentContext = parent[1];
   }
+
   function getTheme() {
     if (theme != null) {
       return theme;
     }
+
     return parentContext != null ? parentContext.getTheme() : null;
   }
+
   return {
     getTheme
   };
 }
 function useLexicalComposerContext() {
   const composerContext = react.useContext(LexicalComposerContext);
+
   if (composerContext == null) {
     {
       throw Error(`LexicalComposerContext.useLexicalComposerContext: cannot find a LexicalComposerContext`);
     }
   }
+
   return composerContext;
 }
 

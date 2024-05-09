@@ -20,6 +20,7 @@ class DecoratorBlockNode extends lexical.DecoratorNode {
     super(key);
     this.__format = format || '';
   }
+
   exportJSON() {
     return {
       format: this.__format || '',
@@ -27,19 +28,24 @@ class DecoratorBlockNode extends lexical.DecoratorNode {
       version: 1
     };
   }
+
   createDOM() {
     return document.createElement('div');
   }
+
   updateDOM() {
     return false;
   }
+
   setFormat(format) {
     const self = this.getWritable();
     self.__format = format;
   }
+
   isInline() {
     return false;
   }
+
 }
 function $isDecoratorBlockNode(node) {
   return node instanceof DecoratorBlockNode;

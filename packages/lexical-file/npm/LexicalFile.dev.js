@@ -17,11 +17,11 @@ var version = "0.12.2";
  * LICENSE file in the root directory of this source tree.
  *
  */
-
 /**
  * Takes a file and inputs its content into the editor state as an input field.
  * @param editor - The lexical editor.
  */
+
 function importFile(editor) {
   readTextFileFromSystem(text => {
     const json = JSON.parse(text);
@@ -30,16 +30,19 @@ function importFile(editor) {
     editor.dispatchCommand(lexical.CLEAR_HISTORY_COMMAND, undefined);
   });
 }
+
 function readTextFileFromSystem(callback) {
   const input = document.createElement('input');
   input.type = 'file';
   input.accept = '.lexical';
   input.addEventListener('change', event => {
     const target = event.target;
+
     if (target.files) {
       const file = target.files[0];
       const reader = new FileReader();
       reader.readAsText(file, 'UTF-8');
+
       reader.onload = readerEvent => {
         if (readerEvent.target) {
           const content = readerEvent.target.result;
@@ -50,6 +53,7 @@ function readTextFileFromSystem(callback) {
   });
   input.click();
 }
+
 /**
  * Generates a .lexical file to be downloaded by the browser containing the current editor state.
  * @param editor - The lexical editor.
@@ -67,15 +71,16 @@ function exportFile(editor, config = Object.freeze({})) {
   };
   const fileName = config.fileName || now.toISOString();
   exportBlob(documentJSON, `${fileName}.lexical`);
-}
+} // Adapted from https://stackoverflow.com/a/19328891/2013580
 
-// Adapted from https://stackoverflow.com/a/19328891/2013580
 function exportBlob(data, fileName) {
   const a = document.createElement('a');
   const body = document.body;
+
   if (body === null) {
     return;
   }
+
   body.appendChild(a);
   a.style.display = 'none';
   const json = JSON.stringify(data);

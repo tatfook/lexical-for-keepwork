@@ -9,48 +9,60 @@
 var lexical = require('lexical');
 
 /** @module @lexical/overflow */
+
 /** @noInheritDoc */
 class OverflowNode extends lexical.ElementNode {
   static getType() {
     return 'overflow';
   }
+
   static clone(node) {
     return new OverflowNode(node.__key);
   }
+
   static importJSON(serializedNode) {
     return $createOverflowNode();
   }
+
   static importDOM() {
     return null;
   }
+
   constructor(key) {
     super(key);
     this.__type = 'overflow';
   }
+
   exportJSON() {
-    return {
-      ...super.exportJSON(),
+    return { ...super.exportJSON(),
       type: 'overflow'
     };
   }
+
   createDOM(config) {
     const div = document.createElement('span');
     const className = config.theme.characterLimit;
+
     if (typeof className === 'string') {
       div.className = className;
     }
+
     return div;
   }
+
   updateDOM(prevNode, dom) {
     return false;
   }
+
   insertNewAfter(selection, restoreSelection = true) {
     const parent = this.getParentOrThrow();
     return parent.insertNewAfter(selection, restoreSelection);
   }
+
   excludeFromCopy() {
     return true;
   }
+
 }
 function $createOverflowNode() {
   return lexical.$applyNodeReplacement(new OverflowNode());

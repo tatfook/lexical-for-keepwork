@@ -26,23 +26,29 @@ function LexicalNestedComposer({
 }) {
   const wasCollabPreviouslyReadyRef = React.useRef(false);
   const parentContext = React.useContext(LexicalComposerContext.LexicalComposerContext);
+
   if (parentContext == null) {
     {
       throw Error(`Unexpected parent context null on a nested composer`);
     }
   }
+
   const [parentEditor, {
     getTheme: getParentTheme
   }] = parentContext;
   const composerContext = React.useMemo(() => {
     const composerTheme = initialTheme || getParentTheme() || undefined;
     const context = LexicalComposerContext.createLexicalComposerContext(parentContext, composerTheme);
+
     if (composerTheme !== undefined) {
       initialEditor._config.theme = composerTheme;
     }
+
     initialEditor._parentEditor = parentEditor;
+
     if (!initialNodes) {
       const parentNodes = initialEditor._nodes = new Map(parentEditor._nodes);
+
       for (const [type, entry] of parentNodes) {
         initialEditor._nodes.set(type, {
           klass: entry.klass,
@@ -54,6 +60,7 @@ function LexicalNestedComposer({
     } else {
       for (const klass of initialNodes) {
         const type = klass.getType();
+
         initialEditor._nodes.set(type, {
           klass,
           replace: null,
@@ -62,15 +69,14 @@ function LexicalNestedComposer({
         });
       }
     }
+
     initialEditor._config.namespace = parentEditor._config.namespace;
     initialEditor._editable = parentEditor._editable;
     return [initialEditor, context];
-  },
-  // We only do this for init
+  }, // We only do this for init
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  []);
+  []); // If collaboration is enabled, make sure we don't render the children until the collaboration subdocument is ready.
 
-  // If collaboration is enabled, make sure we don't render the children until the collaboration subdocument is ready.
   const {
     isCollabActive,
     yjsDocMap
@@ -80,9 +86,8 @@ function LexicalNestedComposer({
     if (isCollabReady) {
       wasCollabPreviouslyReadyRef.current = true;
     }
-  }, [isCollabReady]);
+  }, [isCollabReady]); // Update `isEditable` state of nested editor in response to the same change on parent editor.
 
-  // Update `isEditable` state of nested editor in response to the same change on parent editor.
   React.useEffect(() => {
     return parentEditor.registerEditableListener(editable => {
       initialEditor.setEditable(editable);

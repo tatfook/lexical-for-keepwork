@@ -32,9 +32,11 @@ function useList(editor) {
       return true;
     }, lexical.COMMAND_PRIORITY_LOW), editor.registerCommand(lexical.INSERT_PARAGRAPH_COMMAND, () => {
       const hasHandledInsertParagraph = list.$handleListInsertParagraph();
+
       if (hasHandledInsertParagraph) {
         return true;
       }
+
       return false;
     }, lexical.COMMAND_PRIORITY_LOW));
   }, [editor]);

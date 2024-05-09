@@ -28,6 +28,7 @@ class AutoEmbedOption extends LexicalNodeMenuPlugin.MenuOption {
     this.title = title;
     this.onSelect = options.onSelect.bind(this);
   }
+
 }
 function LexicalAutoEmbedPlugin({
   embedConfigs,
@@ -45,10 +46,12 @@ function LexicalAutoEmbedPlugin({
   const checkIfLinkNodeIsEmbeddable = React.useCallback(key => {
     editor.getEditorState().read(async () => {
       const linkNode = lexical.$getNodeByKey(key);
+
       if (link.$isLinkNode(linkNode)) {
         for (let i = 0; i < embedConfigs.length; i++) {
           const embedConfig = embedConfigs[i];
           const urlMatch = await Promise.resolve(embedConfig.parseUrl(linkNode.__url));
+
           if (urlMatch != null) {
             setActiveEmbedConfig(embedConfig);
             setNodeKey(linkNode.getKey());
@@ -70,6 +73,7 @@ function LexicalAutoEmbedPlugin({
         }
       }
     };
+
     return utils.mergeRegister(...[link.LinkNode, link.AutoLinkNode].map(Klass => editor.registerMutationListener(Klass, (...args) => listener(...args))));
   }, [checkIfLinkNodeIsEmbeddable, editor, embedConfigs, nodeKey, reset]);
   React.useEffect(() => {
@@ -77,10 +81,12 @@ function LexicalAutoEmbedPlugin({
       const embedConfig = embedConfigs.find(({
         type
       }) => type === embedConfigType);
+
       if (embedConfig) {
         onOpenEmbedModalForConfig(embedConfig);
         return true;
       }
+
       return false;
     }, lexical.COMMAND_PRIORITY_EDITOR);
   }, [editor, embedConfigs, onOpenEmbedModalForConfig]);
@@ -88,19 +94,25 @@ function LexicalAutoEmbedPlugin({
     if (activeEmbedConfig != null && nodeKey != null) {
       const linkNode = editor.getEditorState().read(() => {
         const node = lexical.$getNodeByKey(nodeKey);
+
         if (link.$isLinkNode(node)) {
           return node;
         }
+
         return null;
       });
+
       if (link.$isLinkNode(linkNode)) {
         const result = await Promise.resolve(activeEmbedConfig.parseUrl(linkNode.__url));
+
         if (result != null) {
           editor.update(() => {
             if (!lexical.$getSelection()) {
               linkNode.selectEnd();
             }
+
             activeEmbedConfig.insertNode(editor, result);
+
             if (linkNode.isAttached()) {
               linkNode.remove();
             }

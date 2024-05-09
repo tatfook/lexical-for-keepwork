@@ -33,23 +33,28 @@ function BlockWithAlignableContents({
     if (isSelected && lexical.$isNodeSelection(lexical.$getSelection())) {
       event.preventDefault();
       const node = lexical.$getNodeByKey(nodeKey);
+
       if (lexical.$isDecoratorNode(node)) {
         node.remove();
       }
     }
+
     return false;
   }, [isSelected, nodeKey]);
   React.useEffect(() => {
     return utils.mergeRegister(editor.registerCommand(lexical.FORMAT_ELEMENT_COMMAND, formatType => {
       if (isSelected) {
         const selection = lexical.$getSelection();
+
         if (lexical.$isNodeSelection(selection)) {
           const node = lexical.$getNodeByKey(nodeKey);
+
           if (LexicalDecoratorBlockNode.$isDecoratorBlockNode(node)) {
             node.setFormat(formatType);
           }
         } else if (lexical.$isRangeSelection(selection)) {
           const nodes = selection.getNodes();
+
           for (const node of nodes) {
             if (LexicalDecoratorBlockNode.$isDecoratorBlockNode(node)) {
               node.setFormat(formatType);
@@ -59,18 +64,23 @@ function BlockWithAlignableContents({
             }
           }
         }
+
         return true;
       }
+
       return false;
     }, lexical.COMMAND_PRIORITY_LOW), editor.registerCommand(lexical.CLICK_COMMAND, event => {
       if (event.target === ref.current) {
         event.preventDefault();
+
         if (!event.shiftKey) {
           clearSelection();
         }
+
         setSelected(!isSelected);
         return true;
       }
+
       return false;
     }, lexical.COMMAND_PRIORITY_LOW), editor.registerCommand(lexical.KEY_DELETE_COMMAND, onDelete, lexical.COMMAND_PRIORITY_LOW), editor.registerCommand(lexical.KEY_BACKSPACE_COMMAND, onDelete, lexical.COMMAND_PRIORITY_LOW));
   }, [clearSelection, editor, isSelected, nodeKey, onDelete, setSelected]);

@@ -15,6 +15,7 @@ var LexicalComposerContext = require('@lexical/react/LexicalComposerContext');
  * LICENSE file in the root directory of this source tree.
  *
  */
+
 /**
  *
  * Use this plugin to access the editor instance outside of the
@@ -26,11 +27,13 @@ function EditorRefPlugin({
   editorRef
 }) {
   const [editor] = LexicalComposerContext.useLexicalComposerContext();
+
   if (typeof editorRef === 'function') {
     editorRef(editor);
   } else if (typeof editorRef === 'object') {
     editorRef.current = editor;
   }
+
   return null;
 }
 

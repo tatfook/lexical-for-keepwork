@@ -24,14 +24,18 @@ function HorizontalRulePlugin() {
   react.useEffect(() => {
     return editor.registerCommand(LexicalHorizontalRuleNode.INSERT_HORIZONTAL_RULE_COMMAND, type => {
       const selection = lexical.$getSelection();
+
       if (!lexical.$isRangeSelection(selection)) {
         return false;
       }
+
       const focusNode = selection.focus.getNode();
+
       if (focusNode !== null) {
         const horizontalRuleNode = LexicalHorizontalRuleNode.$createHorizontalRuleNode();
         utils.$insertNodeToNearestRoot(horizontalRuleNode);
       }
+
       return true;
     }, lexical.COMMAND_PRIORITY_EDITOR);
   }, [editor]);

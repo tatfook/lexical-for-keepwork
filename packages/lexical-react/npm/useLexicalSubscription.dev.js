@@ -16,7 +16,6 @@ var react = require('react');
  * LICENSE file in the root directory of this source tree.
  *
  */
-
 const CAN_USE_DOM = typeof window !== 'undefined' && typeof window.document !== 'undefined' && typeof window.document.createElement !== 'undefined';
 
 /**
@@ -36,6 +35,7 @@ var useLayoutEffect = useLayoutEffectImpl;
  * LICENSE file in the root directory of this source tree.
  *
  */
+
 /**
  * Shortcut to Lexical subscriptions when values are used for render.
  */
@@ -50,10 +50,12 @@ function useLexicalSubscription(subscription) {
       subscribe
     } = initializedSubscription;
     const currentValue = initialValueFn();
+
     if (valueRef.current !== currentValue) {
       valueRef.current = currentValue;
       setValue(currentValue);
     }
+
     return subscribe(newValue => {
       valueRef.current = newValue;
       setValue(newValue);

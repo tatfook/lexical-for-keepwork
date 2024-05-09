@@ -10,6 +10,7 @@ var selection = require('@lexical/selection');
 var lexical = require('lexical');
 
 /** @module @lexical/utils */
+
 /**
  * Takes an HTML element and adds the classNames passed within an array,
  * ignoring any non-string types. A space can be used to add multiple classes
@@ -26,7 +27,6 @@ function addClassNamesToElement(element, ...classNames) {
     }
   });
 }
-
 /**
  * Takes an HTML element and removes the classNames passed within an array,
  * ignoring any non-string types. A space can be used to remove multiple classes
@@ -35,6 +35,7 @@ function addClassNamesToElement(element, ...classNames) {
  * @param element - The element in which the classes are removed
  * @param classNames - An array defining the class names to remove from the element
  */
+
 function removeClassNamesFromElement(element, ...classNames) {
   classNames.forEach(className => {
     if (typeof className === 'string') {
@@ -42,7 +43,6 @@ function removeClassNamesFromElement(element, ...classNames) {
     }
   });
 }
-
 /**
  * Returns true if the file type matches the types passed within the acceptableMimeTypes array, false otherwise.
  * The types passed must be strings and are CASE-SENSITIVE.
@@ -51,15 +51,16 @@ function removeClassNamesFromElement(element, ...classNames) {
  * @param acceptableMimeTypes - An array of strings of types which the file is checked against.
  * @returns true if the file is an acceptable mime type, false otherwise.
  */
+
 function isMimeType(file, acceptableMimeTypes) {
   for (const acceptableType of acceptableMimeTypes) {
     if (file.type.startsWith(acceptableType)) {
       return true;
     }
   }
+
   return false;
 }
-
 /**
  * Lexical File Reader with:
  *  1. MIME type support
@@ -71,40 +72,47 @@ function isMimeType(file, acceptableMimeTypes) {
  *   src: file.result,
  * }));
  */
+
 function mediaFileReader(files, acceptableMimeTypes) {
   const filesIterator = files[Symbol.iterator]();
   return new Promise((resolve, reject) => {
     const processed = [];
+
     const handleNextFile = () => {
       const {
         done,
         value: file
       } = filesIterator.next();
+
       if (done) {
         return resolve(processed);
       }
+
       const fileReader = new FileReader();
       fileReader.addEventListener('error', reject);
       fileReader.addEventListener('load', () => {
         const result = fileReader.result;
+
         if (typeof result === 'string') {
           processed.push({
             file,
             result
           });
         }
+
         handleNextFile();
       });
+
       if (isMimeType(file, acceptableMimeTypes)) {
         fileReader.readAsDataURL(file);
       } else {
         handleNextFile();
       }
     };
+
     handleNextFile();
   });
 }
-
 /**
  * "Depth-First Search" starts at the root/top node of a tree and goes as far as it can down a branch end
  * before backtracking and finding a new path. Consider solving a maze by hugging either wall, moving down a
@@ -115,25 +123,30 @@ function mediaFileReader(files, acceptableMimeTypes) {
  * @returns An array of objects of all the nodes found by the search, including their depth into the tree.
  * {depth: number, node: LexicalNode} It will always return at least 1 node (the ending node) so long as it exists
  */
+
 function $dfs(startingNode, endingNode) {
   const nodes = [];
   const start = (startingNode || lexical.$getRoot()).getLatest();
   const end = endingNode || (lexical.$isElementNode(start) ? start.getLastDescendant() : start);
   let node = start;
   let depth = $getDepth(node);
+
   while (node !== null && !node.is(end)) {
     nodes.push({
       depth,
       node
     });
+
     if (lexical.$isElementNode(node) && node.getChildrenSize() > 0) {
       node = node.getFirstChild();
       depth++;
     } else {
       // Find immediate sibling or nearest parent sibling
       let sibling = null;
+
       while (sibling === null && node !== null) {
         sibling = node.getNextSibling();
+
         if (sibling === null) {
           node = node.getParent();
           depth--;
@@ -143,23 +156,27 @@ function $dfs(startingNode, endingNode) {
       }
     }
   }
+
   if (node !== null && node.is(end)) {
     nodes.push({
       depth,
       node
     });
   }
+
   return nodes;
 }
+
 function $getDepth(node) {
   let innerNode = node;
   let depth = 0;
+
   while ((innerNode = innerNode.getParent()) !== null) {
     depth++;
   }
+
   return depth;
 }
-
 /**
  * Takes a node and traverses up its ancestors (toward the root node)
  * in order to find a specific type of node.
@@ -167,31 +184,39 @@ function $getDepth(node) {
  * @param klass - an instance of the type of node to look for.
  * @returns the node of type klass that was passed, or null if none exist.
  */
+
+
 function $getNearestNodeOfType(node, klass) {
   let parent = node;
+
   while (parent != null) {
     if (parent instanceof klass) {
       return parent;
     }
+
     parent = parent.getParent();
   }
+
   return null;
 }
-
 /**
  * Returns the element node of the nearest ancestor, otherwise throws an error.
  * @param startNode - The starting node of the search
  * @returns The ancestor node found
  */
+
 function $getNearestBlockElementAncestorOrThrow(startNode) {
   const blockNode = $findMatchingParent(startNode, node => lexical.$isElementNode(node) && !node.isInline());
+
   if (!lexical.$isElementNode(blockNode)) {
     {
       throw Error(`Expected node ${startNode.__key} to have closest block element node.`);
     }
   }
+
   return blockNode;
 }
+
 /**
  * Starts with a node and moves up the tree (toward the root node) to find a matching node based on
  * the search parameters of the findFn. (Consider JavaScripts' .find() function where a testing function must be
@@ -202,14 +227,18 @@ function $getNearestBlockElementAncestorOrThrow(startNode) {
  */
 function $findMatchingParent(startingNode, findFn) {
   let curr = startingNode;
+
   while (curr !== lexical.$getRoot() && curr != null) {
     if (findFn(curr)) {
       return curr;
     }
+
     curr = curr.getParent();
   }
+
   return null;
 }
+
 /**
  * Returns a function that will execute all functions passed when called. It is generally used
  * to register multiple lexical listeners and then tear them down with a single function call, such
@@ -237,7 +266,6 @@ function mergeRegister(...func) {
     func.forEach(f => f());
   };
 }
-
 /**
  * Attempts to resolve nested element nodes of the same type into a single node of that type.
  * It is generally used for marks/commenting
@@ -247,25 +275,32 @@ function mergeRegister(...func) {
  * @param handleOverlap - Handles any overlap between the node to extract and the targetNode
  * @returns The lexical editor
  */
+
 function registerNestedElementResolver(editor, targetNode, cloneNode, handleOverlap) {
   const $isTargetNode = node => {
     return node instanceof targetNode;
   };
+
   const $findMatch = node => {
     // First validate we don't have any children that are of the target,
     // as we need to handle them first.
     const children = node.getChildren();
+
     for (let i = 0; i < children.length; i++) {
       const child = children[i];
+
       if ($isTargetNode(child)) {
         return null;
       }
     }
+
     let parentNode = node;
     let childNode = node;
+
     while (parentNode !== null) {
       childNode = parentNode;
       parentNode = parentNode.getParent();
+
       if ($isTargetNode(parentNode)) {
         return {
           child: childNode,
@@ -273,64 +308,73 @@ function registerNestedElementResolver(editor, targetNode, cloneNode, handleOver
         };
       }
     }
+
     return null;
   };
+
   const elementNodeTransform = node => {
     const match = $findMatch(node);
+
     if (match !== null) {
       const {
         child,
         parent
-      } = match;
-
-      // Simple path, we can move child out and siblings into a new parent.
+      } = match; // Simple path, we can move child out and siblings into a new parent.
 
       if (child.is(node)) {
         handleOverlap(parent, node);
         const nextSiblings = child.getNextSiblings();
         const nextSiblingsLength = nextSiblings.length;
         parent.insertAfter(child);
+
         if (nextSiblingsLength !== 0) {
           const newParent = cloneNode(parent);
           child.insertAfter(newParent);
+
           for (let i = 0; i < nextSiblingsLength; i++) {
             newParent.append(nextSiblings[i]);
           }
         }
+
         if (!parent.canBeEmpty() && parent.getChildrenSize() === 0) {
           parent.remove();
         }
       }
     }
   };
+
   return editor.registerNodeTransform(targetNode, elementNodeTransform);
 }
-
 /**
  * Clones the editor and marks it as dirty to be reconciled. If there was a selection,
  * it would be set back to its previous state, or null otherwise.
  * @param editor - The lexical editor
  * @param editorState - The editor's state
  */
+
 function $restoreEditorState(editor, editorState) {
   const FULL_RECONCILE = 2;
   const nodeMap = new Map();
   const activeEditorState = editor._pendingEditorState;
+
   for (const [key, node] of editorState._nodeMap) {
     const clone = selection.$cloneWithProperties(node);
+
     if (lexical.$isTextNode(clone)) {
       clone.__text = node.__text;
     }
+
     nodeMap.set(key, clone);
   }
+
   if (activeEditorState) {
     activeEditorState._nodeMap = nodeMap;
   }
+
   editor._dirtyType = FULL_RECONCILE;
   const selection$1 = editorState._selection;
   lexical.$setSelection(selection$1 === null ? null : selection$1.clone());
 }
-
 /**
  * If the selected insertion area is the root/shadow root node (see {@link lexical!$isRootOrShadowRoot}),
  * the node will be appended there, otherwise, it will be inserted before the insertion area.
@@ -339,28 +383,35 @@ function $restoreEditorState(editor, editorState) {
  * @param node - The node to be inserted
  * @returns The node after its insertion
  */
+
 function $insertNodeToNearestRoot(node) {
   const selection = lexical.$getSelection() || lexical.$getPreviousSelection();
+
   if (lexical.$isRangeSelection(selection)) {
     const {
       focus
     } = selection;
     const focusNode = focus.getNode();
     const focusOffset = focus.offset;
+
     if (lexical.$isRootOrShadowRoot(focusNode)) {
       const focusChild = focusNode.getChildAtIndex(focusOffset);
+
       if (focusChild == null) {
         focusNode.append(node);
       } else {
         focusChild.insertBefore(node);
       }
+
       node.selectNext();
     } else {
       let splitNode;
       let splitOffset;
+
       if (lexical.$isTextNode(focusNode)) {
         splitNode = focusNode.getParentOrThrow();
         splitOffset = focusNode.getIndexWithinParent();
+
         if (focusOffset > 0) {
           splitOffset += 1;
           focusNode.splitText(focusOffset);
@@ -369,6 +420,7 @@ function $insertNodeToNearestRoot(node) {
         splitNode = focusNode;
         splitOffset = focusOffset;
       }
+
       const [, rightTree] = lexical.$splitNode(splitNode, splitOffset);
       rightTree.insertBefore(node);
       rightTree.selectStart();
@@ -381,27 +433,27 @@ function $insertNodeToNearestRoot(node) {
       const root = lexical.$getRoot();
       root.append(node);
     }
+
     const paragraphNode = lexical.$createParagraphNode();
     node.insertAfter(paragraphNode);
     paragraphNode.select();
   }
+
   return node.getLatest();
 }
-
 /**
  * Wraps the node into another node created from a createElementNode function, eg. $createParagraphNode
  * @param node - Node to be wrapped.
  * @param createElementNode - Creates a new lexcial element to wrap the to-be-wrapped node and returns it.
  * @returns A new lexcial element with the previous node appended within (as a child, including its children).
  */
+
 function $wrapNodeInElement(node, createElementNode) {
   const elementNode = createElementNode();
   node.replace(elementNode);
   elementNode.append(node);
   return elementNode;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+} // eslint-disable-next-line @typescript-eslint/no-explicit-any
 
 /**
  * @param object = The instance of the type
@@ -411,7 +463,6 @@ function $wrapNodeInElement(node, createElementNode) {
 function objectKlassEquals(object, objectClass) {
   return object !== null ? Object.getPrototypeOf(object).constructor.name === objectClass.name : false;
 }
-
 /**
  * Filter the nodes
  * @param nodes Array of nodes that needs to be filtered
@@ -421,12 +472,15 @@ function objectKlassEquals(object, objectClass) {
 
 function $filter(nodes, filterFn) {
   const result = [];
+
   for (let i = 0; i < nodes.length; i++) {
     const node = filterFn(nodes[i]);
+
     if (node !== null) {
       result.push(node);
     }
   }
+
   return result;
 }
 /**
@@ -434,8 +488,10 @@ function $filter(nodes, filterFn) {
  * @param parent A parent node
  * @param node Node that needs to be appended
  */
+
 function $insertFirst(parent, node) {
   const firstChild = parent.getFirstChild();
+
   if (firstChild !== null) {
     firstChild.insertBefore(node);
   } else {

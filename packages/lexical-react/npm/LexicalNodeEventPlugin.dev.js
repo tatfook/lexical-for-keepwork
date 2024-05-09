@@ -29,11 +29,14 @@ function NodeEventPlugin({
   listenerRef.current = eventListener;
   react.useEffect(() => {
     const isCaptured = capturedEvents.has(eventType);
+
     const onEvent = event => {
       editor.update(() => {
         const nearestNode = lexical.$getNearestNodeFromDOMNode(event.target);
+
         if (nearestNode !== null) {
           const targetNode = isCaptured ? nearestNode instanceof nodeType ? nearestNode : null : utils.$findMatchingParent(nearestNode, node => node instanceof nodeType);
+
           if (targetNode !== null) {
             listenerRef.current(event, editor, targetNode.getKey());
             return;
@@ -41,15 +44,16 @@ function NodeEventPlugin({
         }
       });
     };
+
     return editor.registerRootListener((rootElement, prevRootElement) => {
       if (rootElement) {
         rootElement.addEventListener(eventType, onEvent, isCaptured);
       }
+
       if (prevRootElement) {
         prevRootElement.removeEventListener(eventType, onEvent, isCaptured);
       }
-    });
-    // We intentionally don't respect changes to eventType.
+    }); // We intentionally don't respect changes to eventType.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor, nodeType]);
   return null;

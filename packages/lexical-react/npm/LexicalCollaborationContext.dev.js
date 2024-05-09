@@ -26,12 +26,15 @@ const CollaborationContext = /*#__PURE__*/react.createContext({
 });
 function useCollaborationContext(username, color) {
   const collabContext = react.useContext(CollaborationContext);
+
   if (username != null) {
     collabContext.name = username;
   }
+
   if (color != null) {
     collabContext.color = color;
   }
+
   return collabContext;
 }
 

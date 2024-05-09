@@ -25,14 +25,14 @@ const HR = {
   },
   regExp: /^(---|\*\*\*|___)\s?$/,
   replace: (parentNode, _1, _2, isImport) => {
-    const line = LexicalHorizontalRuleNode.$createHorizontalRuleNode();
+    const line = LexicalHorizontalRuleNode.$createHorizontalRuleNode(); // TODO: Get rid of isImport flag
 
-    // TODO: Get rid of isImport flag
     if (isImport || parentNode.getNextSibling() != null) {
       parentNode.replace(line);
     } else {
       parentNode.insertBefore(line);
     }
+
     line.selectNext();
   },
   type: 'element'

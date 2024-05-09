@@ -32,8 +32,7 @@ function useYjsCollaboration(editor, id, provider, docMap, name, color, shouldBo
   const disconnect = React.useCallback(() => {
     try {
       provider.disconnect();
-    } catch (e) {
-      // Do nothing
+    } catch (e) {// Do nothing
     }
   }, [provider]);
   React.useEffect(() => {
@@ -43,39 +42,48 @@ function useYjsCollaboration(editor, id, provider, docMap, name, color, shouldBo
     const {
       awareness
     } = provider;
+
     const onStatus = ({
       status
     }) => {
       editor.dispatchCommand(yjs.CONNECTED_COMMAND, status === 'connected');
     };
+
     const onSync = isSynced => {
       if (shouldBootstrap && isSynced && root.isEmpty() && root._xmlText._length === 0 && isReloadingDoc.current === false) {
         initializeEditor(editor, initialEditorState);
       }
+
       isReloadingDoc.current = false;
     };
+
     const onAwarenessUpdate = () => {
       yjs.syncCursorPositions(binding, provider);
     };
+
     const onYjsTreeChanges = (events, transaction) => {
       const origin = transaction.origin;
+
       if (origin !== binding) {
         const isFromUndoManger = origin instanceof yjs$1.UndoManager;
         yjs.syncYjsChangesToLexical(binding, provider, events, isFromUndoManger);
       }
     };
+
     yjs.initLocalState(provider, name, color, document.activeElement === editor.getRootElement(), awarenessData || {});
+
     const onProviderDocReload = ydoc => {
       clearEditorSkipCollab(editor, binding);
       setDoc(ydoc);
       docMap.set(id, ydoc);
       isReloadingDoc.current = true;
     };
+
     provider.on('reload', onProviderDocReload);
     provider.on('status', onStatus);
     provider.on('sync', onSync);
-    awareness.on('update', onAwarenessUpdate);
-    // This updates the local editor state when we recieve updates from other clients
+    awareness.on('update', onAwarenessUpdate); // This updates the local editor state when we recieve updates from other clients
+
     root.getSharedType().observeDeep(onYjsTreeChanges);
     const removeListener = editor.registerUpdateListener(({
       prevEditorState,
@@ -94,6 +102,7 @@ function useYjsCollaboration(editor, id, provider, docMap, name, color, shouldBo
       if (isReloadingDoc.current === false) {
         disconnect();
       }
+
       provider.off('sync', onSync);
       provider.off('status', onStatus);
       provider.off('reload', onProviderDocReload);
@@ -107,6 +116,7 @@ function useYjsCollaboration(editor, id, provider, docMap, name, color, shouldBo
     const ref = element => {
       binding.cursorsContainer = element;
     };
+
     return /*#__PURE__*/reactDom.createPortal( /*#__PURE__*/React.createElement("div", {
       ref: ref
     }), cursorsContainerRef && cursorsContainerRef.current || document.body);
@@ -115,6 +125,7 @@ function useYjsCollaboration(editor, id, provider, docMap, name, color, shouldBo
     return editor.registerCommand(yjs.TOGGLE_CONNECT_COMMAND, payload => {
       if (connect !== undefined && disconnect !== undefined) {
         const shouldConnect = payload;
+
         if (shouldConnect) {
           // eslint-disable-next-line no-console
           console.log('Collaboration connected!');
@@ -125,6 +136,7 @@ function useYjsCollaboration(editor, id, provider, docMap, name, color, shouldBo
           disconnect();
         }
       }
+
       return true;
     }, lexical.COMMAND_PRIORITY_EDITOR);
   }, [connect, disconnect, editor]);
@@ -147,9 +159,11 @@ function useYjsHistory(editor, binding) {
     const undo = () => {
       undoManager.undo();
     };
+
     const redo = () => {
       undoManager.redo();
     };
+
     return utils.mergeRegister(editor.registerCommand(lexical.UNDO_COMMAND, () => {
       undo();
       return true;
@@ -160,14 +174,14 @@ function useYjsHistory(editor, binding) {
   });
   const clearHistory = React.useCallback(() => {
     undoManager.clear();
-  }, [undoManager]);
+  }, [undoManager]); // Exposing undo and redo states
 
-  // Exposing undo and redo states
   React.useEffect(() => {
     const updateUndoRedoStates = () => {
       editor.dispatchCommand(lexical.CAN_UNDO_COMMAND, undoManager.undoStack.length > 0);
       editor.dispatchCommand(lexical.CAN_REDO_COMMAND, undoManager.redoStack.length > 0);
     };
+
     undoManager.on('stack-item-added', updateUndoRedoStates);
     undoManager.on('stack-item-popped', updateUndoRedoStates);
     undoManager.on('stack-cleared', updateUndoRedoStates);
@@ -179,9 +193,11 @@ function useYjsHistory(editor, binding) {
   }, [editor, undoManager]);
   return clearHistory;
 }
+
 function initializeEditor(editor, initialEditorState) {
   editor.update(() => {
     const root = lexical.$getRoot();
+
     if (root.isEmpty()) {
       if (initialEditorState) {
         switch (typeof initialEditorState) {
@@ -193,6 +209,7 @@ function initializeEditor(editor, initialEditorState) {
               });
               break;
             }
+
           case 'object':
             {
               editor.setEditorState(initialEditorState, {
@@ -200,10 +217,12 @@ function initializeEditor(editor, initialEditorState) {
               });
               break;
             }
+
           case 'function':
             {
               editor.update(() => {
                 const root1 = lexical.$getRoot();
+
                 if (root1.isEmpty()) {
                   initialEditorState(editor);
                 }
@@ -219,6 +238,7 @@ function initializeEditor(editor, initialEditorState) {
         const {
           activeElement
         } = document;
+
         if (lexical.$getSelection() !== null || activeElement !== null && activeElement === editor.getRootElement()) {
           paragraph.select();
         }
@@ -228,6 +248,7 @@ function initializeEditor(editor, initialEditorState) {
     tag: 'history-merge'
   });
 }
+
 function clearEditorSkipCollab(editor, binding) {
   // reset editor state
   editor.update(() => {
@@ -237,25 +258,33 @@ function clearEditorSkipCollab(editor, binding) {
   }, {
     tag: 'skip-collab'
   });
+
   if (binding.cursors == null) {
     return;
   }
+
   const cursors = binding.cursors;
+
   if (cursors == null) {
     return;
   }
+
   const cursorsContainer = binding.cursorsContainer;
+
   if (cursorsContainer == null) {
     return;
-  }
+  } // reset cursors in dom
 
-  // reset cursors in dom
+
   const cursorsArr = Array.from(cursors.values());
+
   for (let i = 0; i < cursorsArr.length; i++) {
     const cursor = cursorsArr[i];
     const selection = cursor.selection;
+
     if (selection && selection.selections != null) {
       const selections = selection.selections;
+
       for (let j = 0; j < selections.length; j++) {
         cursorsContainer.removeChild(selections[i]);
       }

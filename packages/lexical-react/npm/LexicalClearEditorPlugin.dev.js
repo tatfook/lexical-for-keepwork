@@ -17,7 +17,6 @@ var react = require('react');
  * LICENSE file in the root directory of this source tree.
  *
  */
-
 const CAN_USE_DOM = typeof window !== 'undefined' && typeof window.document !== 'undefined' && typeof window.document.createElement !== 'undefined';
 
 /**
@@ -50,6 +49,7 @@ function ClearEditorPlugin({
           const paragraph = lexical.$createParagraphNode();
           root.clear();
           root.append(paragraph);
+
           if (selection !== null) {
             paragraph.select();
           }

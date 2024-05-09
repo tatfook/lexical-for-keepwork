@@ -22,7 +22,6 @@ var plainText = require('@lexical/plain-text');
  * LICENSE file in the root directory of this source tree.
  *
  */
-
 const CAN_USE_DOM = typeof window !== 'undefined' && typeof window.document !== 'undefined' && typeof window.document.createElement !== 'undefined';
 
 /**
@@ -42,10 +41,12 @@ var useLayoutEffect = useLayoutEffectImpl;
  * LICENSE file in the root directory of this source tree.
  *
  */
+
 function canShowPlaceholderFromCurrentEditorState(editor) {
   const currentCanShowPlaceholder = editor.getEditorState().read(text.$canShowPlaceholderCurry(editor.isComposing()));
   return currentCanShowPlaceholder;
 }
+
 function useCanShowPlaceholder(editor) {
   const [canShowPlaceholder, setCanShowPlaceholder] = React.useState(() => canShowPlaceholderFromCurrentEditorState(editor));
   useLayoutEffect(() => {
@@ -53,6 +54,7 @@ function useCanShowPlaceholder(editor) {
       const currentCanShowPlaceholder = canShowPlaceholderFromCurrentEditorState(editor);
       setCanShowPlaceholder(currentCanShowPlaceholder);
     }
+
     resetCanShowPlaceholder();
     return utils.mergeRegister(editor.registerUpdateListener(() => {
       resetCanShowPlaceholder();
@@ -71,9 +73,8 @@ function useCanShowPlaceholder(editor) {
  *
  */
 function useDecorators(editor, ErrorBoundary) {
-  const [decorators, setDecorators] = React.useState(() => editor.getDecorators());
+  const [decorators, setDecorators] = React.useState(() => editor.getDecorators()); // Subscribe to changes
 
-  // Subscribe to changes
   useLayoutEffect(() => {
     return editor.registerDecoratorListener(nextDecorators => {
       reactDom.flushSync(() => {
@@ -86,12 +87,12 @@ function useDecorators(editor, ErrorBoundary) {
     // nothing will be rendered on initial pass. We can get around that by
     // ensuring that we set the value.
     setDecorators(editor.getDecorators());
-  }, [editor]);
+  }, [editor]); // Return decorators defined as React Portals
 
-  // Return decorators defined as React Portals
   return React.useMemo(() => {
     const decoratedPortals = [];
     const decoratorKeys = Object.keys(decorators);
+
     for (let i = 0; i < decoratorKeys.length; i++) {
       const nodeKey = decoratorKeys[i];
       const reactDecorator = /*#__PURE__*/React.createElement(ErrorBoundary, {
@@ -100,10 +101,12 @@ function useDecorators(editor, ErrorBoundary) {
         fallback: null
       }, decorators[nodeKey]));
       const element = editor.getElementByKey(nodeKey);
+
       if (element !== null) {
         decoratedPortals.push( /*#__PURE__*/reactDom.createPortal(reactDecorator, element, nodeKey));
       }
     }
+
     return decoratedPortals;
   }, [ErrorBoundary, decorators, editor]);
 }
@@ -117,9 +120,7 @@ function useDecorators(editor, ErrorBoundary) {
  */
 function usePlainTextSetup(editor) {
   useLayoutEffect(() => {
-    return utils.mergeRegister(plainText.registerPlainText(editor), dragon.registerDragonSupport(editor));
-
-    // We only do this for init
+    return utils.mergeRegister(plainText.registerPlainText(editor), dragon.registerDragonSupport(editor)); // We only do this for init
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor]);
 }
@@ -143,15 +144,18 @@ function PlainTextPlugin({
     content: placeholder
   }), decorators);
 }
+
 function Placeholder({
   content
 }) {
   const [editor] = LexicalComposerContext.useLexicalComposerContext();
   const showPlaceholder = useCanShowPlaceholder(editor);
   const editable = useLexicalEditable();
+
   if (!showPlaceholder) {
     return null;
   }
+
   if (typeof content === 'function') {
     return content(editable);
   } else {
