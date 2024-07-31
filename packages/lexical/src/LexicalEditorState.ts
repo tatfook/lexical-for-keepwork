@@ -54,6 +54,7 @@ export function createEmptyEditorState(): EditorState {
 
 export function exportNodeToJSON<SerializedNode extends SerializedLexicalNode>(
   node: LexicalNode,
+  keys?: string[],
 ): SerializedNode {
   const serializedNode = node.exportJSON();
   if (keys) {

@@ -18,8 +18,8 @@ import {
   TextMatchTransformer,
   TRANSFORMERS,
 } from '@lexical/markdown';
-import {parseMarkdownString} from '@lexical/markdown/src/MarkdownImport';
-import {transformersByType} from '@lexical/markdown/src/utils';
+import {parseMarkdownString} from '../../../lexical-markdown/src/MarkdownImport';
+import {transformersByType} from '../../../lexical-markdown/src/utils';
 import {HeadingNode, QuoteNode} from '@lexical/rich-text';
 import {
   $createLineBreakNode,
@@ -30,7 +30,7 @@ import {
   ElementNode,
   LexicalNode
 } from 'lexical';
-import {exportNodeToJSON} from 'lexical/src/LexicalEditorState';
+import {exportNodeToJSON} from '../../../lexical/src/LexicalEditorState';
 
 import {
   $createCollapsibleContainerNode, $isCollapsibleContainerNode,
@@ -123,6 +123,7 @@ const DETAILS: ElementTransformer = {
     }
     return endLineIndex - startLineIndex
   },
+  recursivelyParse: true,
   regExp: /^(\#{1,6})\s?(\>{1,2})\s(.*?)$/,
   replace: (parentNode: ElementNode, children: Array<LexicalNode>, match: Array<string>, isImport: boolean) => {
     const [, hash, greaterThan, summary] = match
@@ -184,7 +185,7 @@ describe('Markdown Collapsed', () => {
   const IMPORT_AND_EXPORT: Input = [
     {
       exportMd: '#>> Hello world\n111\n222\n\n> 3333\n#',
-      html: '<details open="true"><summary><span style="white-space: pre-wrap;">Hello world</span></summary><div data-lexical-collapsible-content="true"><p><span style="white-space: pre-wrap;">111</span><br><span style="white-space: pre-wrap;">222</span></p><blockquote><span style="white-space: pre-wrap;">3333</span></blockquote></div></details>',
+      html: '<details class="Collapsible__container" open="true"><summary class="Collapsible__title"><span style="white-space: pre-wrap;">Hello world</span></summary><div class="Collapsible__content" data-lexical-collapsible-content="true"><p><span style="white-space: pre-wrap;">111</span><br><span style="white-space: pre-wrap;">222</span></p><blockquote><span style="white-space: pre-wrap;">3333</span></blockquote></div></details>',
       md: '#>> Hello world\n111\n222\n> 3333\n#'
     },
     {

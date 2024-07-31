@@ -29,7 +29,6 @@ import {
   $isTextNode,
   ElementNode, ParagraphNode,
 } from 'lexical';
-import {exportNodeToJSON} from 'lexical/src/LexicalEditorState';
 import {IS_APPLE_WEBKIT, IS_IOS, IS_SAFARI} from 'shared/environment';
 
 import {PUNCTUATION_OR_SPACE, transformersByType} from './utils';
