@@ -16,7 +16,7 @@ import type {
 import type {LexicalNode, TextNode} from 'lexical';
 
 import {$createCodeNode} from '@lexical/code';
-import {$isListItemNode, $isListNode} from '@lexical/list';
+import {$isListItemNode, $isListNode, ListItemNode} from '@lexical/list';
 import {$isQuoteNode} from '@lexical/rich-text';
 import {$findMatchingParent} from '@lexical/utils';
 import {
@@ -35,7 +35,7 @@ import {IS_APPLE_WEBKIT, IS_IOS, IS_SAFARI} from 'shared/environment';
 import {PUNCTUATION_OR_SPACE, transformersByType} from './utils';
 
 const MARKDOWN_EMPTY_LINE_REG_EXP = /^\s{0,3}$/;
-const CODE_BLOCK_REG_EXP = /^```(\w{1,10})?\s?$/;
+const CODE_BLOCK_REG_EXP = /^[ \t]*```(\w{1,10})?\s?$/;
 type TextFormatTransformersIndex = Readonly<{
   fullMatchRegExpByTag: Readonly<Record<string, RegExp>>;
   openTagsRegExp: RegExp;
@@ -113,7 +113,7 @@ export function parseMarkdownString(
     if (isMatched) {
       continue
     }
-    importBlocks(
+    $importBlocks(
       lineText,
       parentNode,
       byType.element,
@@ -173,7 +173,7 @@ function isEmptyParagraph(node: LexicalNode): boolean {
   );
 }
 
-function importBlocks(
+function $importBlocks(
   lineText: string,
   parentNode: ElementNode,
   elementTransformers: Array<ElementTransformer>,
@@ -220,7 +220,7 @@ function importBlocks(
       $isQuoteNode(previousNode) ||
       $isListNode(previousNode)
     ) {
-      let targetNode: LexicalNode | null = previousNode;
+      let targetNode: typeof previousNode | ListItemNode | null = previousNode;
 
       if ($isListNode(previousNode)) {
         const lastDescendant = previousNode.getLastDescendant();
@@ -242,7 +242,7 @@ function importBlocks(
   }
 }
 
-function importCodeBlock(
+function $importCodeBlock(
   lines: Array<string>,
   startLineIndex: number,
   rootNode: ElementNode,
@@ -368,21 +368,16 @@ function importTextMatchTransformers(
 
       const startIndex = match.index || 0;
       const endIndex = startIndex + match[0].length;
-      let replaceNode, leftTextNode, rightTextNode;
+      let replaceNode, newTextNode;
 
       if (startIndex === 0) {
         [replaceNode, textNode] = textNode.splitText(endIndex);
       } else {
-        [leftTextNode, replaceNode, rightTextNode] = textNode.splitText(
-          startIndex,
-          endIndex,
-        );
+        [, replaceNode, newTextNode] = textNode.splitText(startIndex, endIndex);
       }
-      if (leftTextNode) {
-        importTextMatchTransformers(leftTextNode, textMatchTransformers);
-      }
-      if (rightTextNode) {
-        textNode = rightTextNode;
+
+      if (newTextNode) {
+        importTextMatchTransformers(newTextNode, textMatchTransformers);
       }
       transformer.replace(replaceNode, match);
       continue mainLoop;

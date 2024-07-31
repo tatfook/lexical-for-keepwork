@@ -8,7 +8,7 @@
 
 import Link from '@docusaurus/Link';
 import * as Tabs from '@radix-ui/react-tabs';
-import React, {useState} from 'react';
+import {useState} from 'react';
 
 const EXAMPLES = [
   {
@@ -23,7 +23,7 @@ const EXAMPLES = [
     ),
     id: 'example-feature-1',
     label: 'Simple Setup',
-    src: 'https://codesandbox.io/embed/lexical-plain-text-example-g932e?fontsize=12&hidenavigation=1&module=%2Fsrc%2FEditor.js&theme=dark',
+    src: 'https://stackblitz.com/github/facebook/lexical/tree/main/examples/vanilla-js?embed=1&file=src%2Fmain.ts&terminalHeight=0&ctl=1',
   },
   {
     content: (
@@ -38,7 +38,7 @@ const EXAMPLES = [
     ),
     id: 'example-feature-2',
     label: 'Powerful Features',
-    src: 'https://codesandbox.io/embed/lexical-rich-text-example-5tncvy?fontsize=12&hidenavigation=1&module=%2Fsrc%2FEditor.js&theme=dark',
+    src: 'https://stackblitz.com/github/facebook/lexical/tree/main/examples/react-rich?embed=1&file=src%2FApp.tsx&terminalHeight=0&ctl=1',
   },
   {
     content: (
@@ -50,7 +50,7 @@ const EXAMPLES = [
     ),
     id: 'example-feature-3',
     label: 'Built to Extend',
-    src: 'https://codesandbox.io/embed/lexical-plain-text-example-forked-qdxhy?fontsize=12&hidenavigation=1&module=%2Fsrc%2FEmoticonPlugin.js&theme=dark&view=editor',
+    src: 'https://stackblitz.com/github/facebook/lexical/tree/main/examples/vanilla-js-plugin?embed=1&file=src%2Femoji-plugin%2FEmojiPlugin.ts&terminalHeight=0&ctl=1',
   },
 ];
 
@@ -79,7 +79,7 @@ export default function HomepageExamples() {
         </ul>
       </Tabs.List>
 
-      {EXAMPLES.map(({id, content, src}) => (
+      {EXAMPLES.map(({id, content, src, label}) => (
         <Tabs.Content asChild={true} value={id} key={id}>
           <div className="grid gap-6 lg:grid-cols-[1fr_2fr]">
             <div className="flex flex-col gap-6">
@@ -98,8 +98,8 @@ export default function HomepageExamples() {
               <iframe
                 className="h-[500px] w-full overflow-hidden"
                 src={src}
-                title="lexical-plain-text-example"
-                sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+                title={label}
+                sandbox="allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-presentation allow-same-origin allow-scripts"
               />
             </div>
           </div>

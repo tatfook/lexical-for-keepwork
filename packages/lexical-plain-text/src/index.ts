@@ -1,4 +1,3 @@
-/** @module @lexical/plain-text */
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
@@ -17,7 +16,7 @@ import {
   $moveCharacter,
   $shouldOverrideDefaultCharacterSelection,
 } from '@lexical/selection';
-import {mergeRegister} from '@lexical/utils';
+import {mergeRegister, objectKlassEquals} from '@lexical/utils';
 import {
   $getSelection,
   $isRangeSelection,
@@ -38,6 +37,7 @@ import {
   KEY_BACKSPACE_COMMAND,
   KEY_DELETE_COMMAND,
   KEY_ENTER_COMMAND,
+  KEY_ESCAPE_COMMAND,
   PASTE_COMMAND,
   REMOVE_TEXT_COMMAND,
   SELECT_ALL_COMMAND,
@@ -55,8 +55,9 @@ function onCopyForPlainText(
 ): void {
   editor.update(() => {
     if (event !== null) {
-      const clipboardData =
-        event instanceof KeyboardEvent ? null : event.clipboardData;
+      const clipboardData = objectKlassEquals(event, KeyboardEvent)
+        ? null
+        : (event as ClipboardEvent).clipboardData;
       const selection = $getSelection();
 
       if (selection !== null && clipboardData != null) {
@@ -321,6 +322,18 @@ export function registerPlainText(editor: LexicalEditor): () => void {
         }
 
         return editor.dispatchCommand(INSERT_LINE_BREAK_COMMAND, false);
+      },
+      COMMAND_PRIORITY_EDITOR,
+    ),
+    editor.registerCommand(
+      KEY_ESCAPE_COMMAND,
+      () => {
+        const selection = $getSelection();
+        if (!$isRangeSelection(selection)) {
+          return false;
+        }
+        editor.blur();
+        return true;
       },
       COMMAND_PRIORITY_EDITOR,
     ),

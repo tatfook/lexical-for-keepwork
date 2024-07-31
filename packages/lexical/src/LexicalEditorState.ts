@@ -8,16 +8,12 @@
 
 import type {LexicalEditor} from './LexicalEditor';
 import type {LexicalNode, NodeMap, SerializedLexicalNode} from './LexicalNode';
-import type {
-  GridSelection,
-  NodeSelection,
-  RangeSelection,
-} from './LexicalSelection';
+import type {BaseSelection} from './LexicalSelection';
 import type {SerializedRootNode} from './nodes/LexicalRootNode';
 
 import invariant from 'shared/invariant';
 
-import {$isElementNode} from '.';
+import {$isElementNode, SerializedElementNode} from '.';
 import {readEditorState} from './LexicalUpdates';
 import {$getRoot} from './LexicalUtils';
 import {$createRootNode} from './nodes/LexicalRootNode';
@@ -56,7 +52,9 @@ export function createEmptyEditorState(): EditorState {
   return new EditorState(new Map([['root', $createRootNode()]]));
 }
 
-export function exportNodeToJSON<SerializedNode>(node: LexicalNode, keys?: string[]): SerializedNode {
+export function exportNodeToJSON<SerializedNode extends SerializedLexicalNode>(
+  node: LexicalNode,
+): SerializedNode {
   const serializedNode = node.exportJSON();
   if (keys) {
     // 遍历serializedNode的key，然后不存在keys中的就删除
@@ -69,7 +67,6 @@ export function exportNodeToJSON<SerializedNode>(node: LexicalNode, keys?: strin
   }
   const nodeClass = node.constructor;
 
-  // @ts-expect-error TODO Replace Class utility type with InstanceType
   if (serializedNode.type !== nodeClass.getType()) {
     invariant(
       false,
@@ -78,10 +75,9 @@ export function exportNodeToJSON<SerializedNode>(node: LexicalNode, keys?: strin
     );
   }
 
-  // @ts-expect-error TODO Replace Class utility type with InstanceType
-  const serializedChildren = serializedNode.children;
-
   if ($isElementNode(node)) {
+    const serializedChildren = (serializedNode as SerializedElementNode)
+      .children;
     if (!Array.isArray(serializedChildren)) {
       invariant(
         false,
@@ -105,14 +101,11 @@ export function exportNodeToJSON<SerializedNode>(node: LexicalNode, keys?: strin
 
 export class EditorState {
   _nodeMap: NodeMap;
-  _selection: null | RangeSelection | NodeSelection | GridSelection;
+  _selection: null | BaseSelection;
   _flushSync: boolean;
   _readOnly: boolean;
 
-  constructor(
-    nodeMap: NodeMap,
-    selection?: RangeSelection | NodeSelection | GridSelection | null,
-  ) {
+  constructor(nodeMap: NodeMap, selection?: null | BaseSelection) {
     this._nodeMap = nodeMap;
     this._selection = selection || null;
     this._flushSync = false;
@@ -127,9 +120,7 @@ export class EditorState {
     return readEditorState(this, callbackFn);
   }
 
-  clone(
-    selection?: RangeSelection | NodeSelection | GridSelection | null,
-  ): EditorState {
+  clone(selection?: null | BaseSelection): EditorState {
     const editorState = new EditorState(
       this._nodeMap,
       selection === undefined ? this._selection : selection,

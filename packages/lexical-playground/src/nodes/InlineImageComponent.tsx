@@ -6,13 +6,7 @@
  *
  */
 import type {Position} from './InlineImageNode';
-import type {
-  GridSelection,
-  LexicalEditor,
-  NodeKey,
-  NodeSelection,
-  RangeSelection,
-} from 'lexical';
+import type {BaseSelection, LexicalEditor, NodeKey} from 'lexical';
 
 import './InlineImageNode.css';
 
@@ -41,8 +35,6 @@ import * as React from 'react';
 import {Suspense, useCallback, useEffect, useRef, useState} from 'react';
 
 import useModal from '../hooks/useModal';
-import FloatingLinkEditorPlugin from '../plugins/FloatingLinkEditorPlugin/index';
-import FloatingTextFormatToolbarPlugin from '../plugins/FloatingTextFormatToolbarPlugin/index';
 import LinkPlugin from '../plugins/LinkPlugin';
 import Button from '../ui/Button';
 import ContentEditable from '../ui/ContentEditable';
@@ -207,12 +199,10 @@ export default function InlineImageComponent({
   const [isSelected, setSelected, clearSelection] =
     useLexicalNodeSelection(nodeKey);
   const [editor] = useLexicalComposerContext();
-  const [selection, setSelection] = useState<
-    RangeSelection | NodeSelection | GridSelection | null
-  >(null);
+  const [selection, setSelection] = useState<BaseSelection | null>(null);
   const activeEditorRef = useRef<LexicalEditor | null>(null);
 
-  const onDelete = useCallback(
+  const $onDelete = useCallback(
     (payload: KeyboardEvent) => {
       if (isSelected && $isNodeSelection($getSelection())) {
         const event: KeyboardEvent = payload;
@@ -220,6 +210,7 @@ export default function InlineImageComponent({
         const node = $getNodeByKey(nodeKey);
         if ($isInlineImageNode(node)) {
           node.remove();
+          return true;
         }
       }
       return false;
@@ -227,7 +218,7 @@ export default function InlineImageComponent({
     [isSelected, nodeKey],
   );
 
-  const onEnter = useCallback(
+  const $onEnter = useCallback(
     (event: KeyboardEvent) => {
       const latestSelection = $getSelection();
       const buttonElem = buttonRef.current;
@@ -256,7 +247,7 @@ export default function InlineImageComponent({
     [caption, isSelected, showCaption],
   );
 
-  const onEscape = useCallback(
+  const $onEscape = useCallback(
     (event: KeyboardEvent) => {
       if (
         activeEditorRef.current === caption ||
@@ -326,18 +317,18 @@ export default function InlineImageComponent({
       ),
       editor.registerCommand(
         KEY_DELETE_COMMAND,
-        onDelete,
+        $onDelete,
         COMMAND_PRIORITY_LOW,
       ),
       editor.registerCommand(
         KEY_BACKSPACE_COMMAND,
-        onDelete,
+        $onDelete,
         COMMAND_PRIORITY_LOW,
       ),
-      editor.registerCommand(KEY_ENTER_COMMAND, onEnter, COMMAND_PRIORITY_LOW),
+      editor.registerCommand(KEY_ENTER_COMMAND, $onEnter, COMMAND_PRIORITY_LOW),
       editor.registerCommand(
         KEY_ESCAPE_COMMAND,
-        onEscape,
+        $onEscape,
         COMMAND_PRIORITY_LOW,
       ),
     );
@@ -350,9 +341,9 @@ export default function InlineImageComponent({
     editor,
     isSelected,
     nodeKey,
-    onDelete,
-    onEnter,
-    onEscape,
+    $onDelete,
+    $onEnter,
+    $onEscape,
     setSelected,
   ]);
 
@@ -395,8 +386,6 @@ export default function InlineImageComponent({
             <LexicalNestedComposer initialEditor={caption}>
               <AutoFocusPlugin />
               <LinkPlugin />
-              <FloatingLinkEditorPlugin />
-              <FloatingTextFormatToolbarPlugin />
               <RichTextPlugin
                 contentEditable={
                   <ContentEditable className="InlineImageNode__contentEditable" />

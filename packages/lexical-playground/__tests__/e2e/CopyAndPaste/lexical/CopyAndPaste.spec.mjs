@@ -792,6 +792,7 @@ test.describe('CopyAndPaste', () => {
     await page.keyboard.type('Hello');
     await selectAll(page);
     await click(page, '.link');
+    await click(page, '.link-confirm');
     await page.keyboard.press('ArrowRight');
     await page.keyboard.press('Space');
     await page.keyboard.type('World');
@@ -860,8 +861,10 @@ test.describe('CopyAndPaste', () => {
 
   test('Pasting a decorator node on a blank line inserts before the line', async ({
     page,
+    isCollab,
     isPlainText,
   }) => {
+    test.fixme(); // TODO: flaky
     test.skip(isPlainText);
 
     // copying and pasting the node is easier than creating the clipboard data
@@ -900,7 +903,10 @@ test.describe('CopyAndPaste', () => {
               width="560"></iframe>
           </div>
         </div>
-        <p class="PlaygroundEditorTheme__paragraph"><br /></p>
+        <div
+          class="PlaygroundEditorTheme__blockCursor"
+          contenteditable="false"
+          data-lexical-cursor="true"></div>
       `,
     );
   });

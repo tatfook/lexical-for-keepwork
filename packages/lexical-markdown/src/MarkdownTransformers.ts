@@ -110,6 +110,23 @@ export const createBlockNode = (
 // TODO: should be an option
 const LIST_INDENT_SIZE = 4;
 
+function getIndent(whitespaces: string): number {
+  const tabs = whitespaces.match(/\t/g);
+  const spaces = whitespaces.match(/ /g);
+
+  let indent = 0;
+
+  if (tabs) {
+    indent += tabs.length;
+  }
+
+  if (spaces) {
+    indent += Math.floor(spaces.length / LIST_INDENT_SIZE);
+  }
+
+  return indent;
+}
+
 const listReplace = (listType: ListType): ElementTransformer['replace'] => {
   return (parentNode, children, match) => {
     const previousNode = parentNode.getPreviousSibling();

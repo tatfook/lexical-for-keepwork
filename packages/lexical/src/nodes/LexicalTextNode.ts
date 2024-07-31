@@ -8,6 +8,7 @@
 
 import type {
   EditorConfig,
+  KlassConstructor,
   LexicalEditor,
   Spread,
   TextNodeThemeClasses,
@@ -19,11 +20,7 @@ import type {
   NodeKey,
   SerializedLexicalNode,
 } from '../LexicalNode';
-import type {
-  GridSelection,
-  NodeSelection,
-  RangeSelection,
-} from '../LexicalSelection';
+import type {BaseSelection, RangeSelection} from '../LexicalSelection';
 
 import {IS_FIREFOX} from 'shared/environment';
 import invariant from 'shared/invariant';
@@ -52,10 +49,10 @@ import {
 import {LexicalNode} from '../LexicalNode';
 import {
   $getSelection,
+  $internalMakeRangeSelection,
   $isRangeSelection,
   $updateElementSelectionOnCreateDeleteNode,
   adjustPointOffsetForMergedSibling,
-  internalMakeRangeSelection,
 } from '../LexicalSelection';
 import {errorOnReadOnly} from '../LexicalUpdates';
 import {
@@ -65,6 +62,7 @@ import {
   getCachedClassNameArray,
   internalMarkSiblingsAsDirty,
   isHTMLElement,
+  isInlineDomNode,
   toggleTextFormatType,
 } from '../LexicalUtils';
 import {$createLineBreakNode} from './LexicalLineBreakNode';
@@ -278,6 +276,7 @@ function wrapElementWith(
 
 /** @noInheritDoc */
 export class TextNode extends LexicalNode {
+  ['constructor']!: KlassConstructor<typeof TextNode>;
   __text: string;
   /** @internal */
   __format: number;
@@ -442,9 +441,17 @@ export class TextNode extends LexicalNode {
     return toggleTextFormatType(format, type, alignWithFormat);
   }
 
+  /**
+   *
+   * @returns true if the text node supports font styling, false otherwise.
+   */
+  canHaveFormat(): boolean {
+    return true;
+  }
+
   // View
 
-  createDOM(config: EditorConfig): HTMLElement {
+  createDOM(config: EditorConfig, editor?: LexicalEditor): HTMLElement {
     const format = this.__format;
     const outerTag = getElementOuterTag(this, format);
     const innerTag = getElementInnerTag(this, format);
@@ -537,7 +544,7 @@ export class TextNode extends LexicalNode {
   static importDOM(): DOMConversionMap | null {
     return {
       '#text': () => ({
-        conversion: convertTextDOMNode,
+        conversion: $convertTextDOMNode,
         priority: 0,
       }),
       b: () => ({
@@ -637,7 +644,7 @@ export class TextNode extends LexicalNode {
 
   // Mutators
   selectionTransform(
-    prevSelection: null | RangeSelection | NodeSelection | GridSelection,
+    prevSelection: null | BaseSelection,
     nextSelection: RangeSelection,
   ): void {
     return;
@@ -664,7 +671,7 @@ export class TextNode extends LexicalNode {
    * Sets the node detail to the provided TextDetailType or 32-bit integer. Note that the TextDetailType
    * version of the argument can only specify one detail value and doing so will remove all other detail values that
    * may be applied to the node. For toggling behavior, consider using {@link TextNode.toggleDirectionless}
-   * or {@link TextNode.togglerUnmergeable}
+   * or {@link TextNode.toggleUnmergeable}
    *
    * @param detail - TextDetailType or 32-bit integer representing the node detail.
    *
@@ -693,7 +700,8 @@ export class TextNode extends LexicalNode {
   }
 
   /**
-   * Applies the provided format to this TextNode if it's not present. Removes it if it is present.
+   * Applies the provided format to this TextNode if it's not present. Removes it if it's present.
+   * The subscript and superscript formats are mutually exclusive.
    * Prefer using this method to turn specific formats on and off.
    *
    * @param type - TextFormatType to toggle.
@@ -701,8 +709,9 @@ export class TextNode extends LexicalNode {
    * @returns this TextNode.
    */
   toggleFormat(type: TextFormatType): this {
-    const formatFlag = TEXT_TYPE_TO_FORMAT[type];
-    return this.setFormat(this.getFormat() ^ formatFlag);
+    const format = this.getFormat();
+    const newFormat = toggleTextFormatType(format, type, null);
+    return this.setFormat(newFormat);
   }
 
   /**
@@ -786,7 +795,7 @@ export class TextNode extends LexicalNode {
       focusOffset = 0;
     }
     if (!$isRangeSelection(selection)) {
-      return internalMakeRangeSelection(
+      return $internalMakeRangeSelection(
         key,
         anchorOffset,
         key,
@@ -805,6 +814,15 @@ export class TextNode extends LexicalNode {
       selection.setTextNodeRange(this, anchorOffset, this, focusOffset);
     }
     return selection;
+  }
+
+  selectStart(): RangeSelection {
+    return this.select(0, 0);
+  }
+
+  selectEnd(): RangeSelection {
+    const size = this.getTextContentSize();
+    return this.select(size, size);
   }
 
   /**
@@ -1073,17 +1091,19 @@ export class TextNode extends LexicalNode {
 function convertSpanElement(domNode: Node): DOMConversionOutput {
   // domNode is a <span> since we matched it by nodeName
   const span = domNode as HTMLSpanElement;
+  const style = span.style;
+  const fontWeight = style.fontWeight;
+  const textDecoration = style.textDecoration.split(' ');
   // Google Docs uses span tags + font-weight for bold text
-  const hasBoldFontWeight = span.style.fontWeight === '700';
+  const hasBoldFontWeight = fontWeight === '700' || fontWeight === 'bold';
   // Google Docs uses span tags + text-decoration: line-through for strikethrough text
-  const hasLinethroughTextDecoration =
-    span.style.textDecoration === 'line-through';
+  const hasLinethroughTextDecoration = textDecoration.includes('line-through');
   // Google Docs uses span tags + font-style for italic text
-  const hasItalicFontStyle = span.style.fontStyle === 'italic';
+  const hasItalicFontStyle = style.fontStyle === 'italic';
   // Google Docs uses span tags + text-decoration: underline for underline text
-  const hasUnderlineTextDecoration = span.style.textDecoration === 'underline';
+  const hasUnderlineTextDecoration = textDecoration.includes('underline');
   // Google Docs uses span tags + vertical-align to specify subscript and superscript
-  const verticalAlign = span.style.verticalAlign;
+  const verticalAlign = style.verticalAlign;
 
   return {
     forChild: (lexicalNode) => {
@@ -1138,6 +1158,8 @@ function isNodePre(node: Node): boolean {
   return (
     node.nodeName === 'PRE' ||
     (node.nodeType === DOM_ELEMENT_TYPE &&
+      (node as HTMLElement).style !== undefined &&
+      (node as HTMLElement).style.whiteSpace !== undefined &&
       (node as HTMLElement).style.whiteSpace.startsWith('pre'))
   );
 }
@@ -1161,7 +1183,7 @@ export function findParentPreDOMNode(node: Node) {
   return resultNode;
 }
 
-function convertTextDOMNode(domNode: Node): DOMConversionOutput {
+function $convertTextDOMNode(domNode: Node): DOMConversionOutput {
   const domNode_ = domNode as Text;
   const parentDom = domNode.parentElement;
   invariant(
@@ -1240,11 +1262,6 @@ function convertTextDOMNode(domNode: Node): DOMConversionOutput {
   return {node: $createTextNode(textContent)};
 }
 
-const inlineParents = new RegExp(
-  /^(a|abbr|acronym|b|cite|code|del|em|i|ins|kbd|label|output|q|ruby|s|samp|span|strong|sub|sup|time|u|tt|var)$/,
-  'i',
-);
-
 function findTextInLine(text: Text, forward: boolean): null | Text {
   let node: Node = text;
   // eslint-disable-next-line no-constant-condition
@@ -1263,7 +1280,7 @@ function findTextInLine(text: Text, forward: boolean): null | Text {
     if (node.nodeType === DOM_ELEMENT_TYPE) {
       const display = (node as HTMLElement).style.display;
       if (
-        (display === '' && node.nodeName.match(inlineParents) === null) ||
+        (display === '' && !isInlineDomNode(node)) ||
         (display !== '' && !display.startsWith('inline'))
       ) {
         return null;
