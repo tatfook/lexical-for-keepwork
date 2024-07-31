@@ -6,9 +6,9 @@
  *
  */
 import type { NodeKey, SerializedLexicalNode } from '../LexicalNode';
-import type { GridSelection, NodeSelection, RangeSelection } from '../LexicalSelection';
-import type { Spread } from 'lexical';
-import { TextNode } from '../';
+import type { BaseSelection, RangeSelection } from '../LexicalSelection';
+import type { KlassConstructor, Spread } from 'lexical';
+import { TextNode } from '../index';
 import { LexicalNode } from '../LexicalNode';
 export type SerializedElementNode<T extends SerializedLexicalNode = SerializedLexicalNode> = Spread<{
     children: Array<T>;
@@ -19,6 +19,7 @@ export type SerializedElementNode<T extends SerializedLexicalNode = SerializedLe
 export type ElementFormatType = 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
 /** @noInheritDoc */
 export declare class ElementNode extends LexicalNode {
+    ['constructor']: KlassConstructor<typeof ElementNode>;
     /** @internal */
     __first: null | NodeKey;
     /** @internal */
@@ -68,7 +69,6 @@ export declare class ElementNode extends LexicalNode {
     canIndent(): boolean;
     collapseAtStart(selection: RangeSelection): boolean;
     excludeFromCopy(destination?: 'clone' | 'html'): boolean;
-    canExtractContents(): boolean;
     canReplaceWith(replacement: LexicalNode): boolean;
     canInsertAfter(node: LexicalNode): boolean;
     canBeEmpty(): boolean;
@@ -77,6 +77,6 @@ export declare class ElementNode extends LexicalNode {
     isInline(): boolean;
     isShadowRoot(): boolean;
     canMergeWith(node: ElementNode): boolean;
-    extractWithChild(child: LexicalNode, selection: RangeSelection | NodeSelection | GridSelection | null, destination: 'clone' | 'html'): boolean;
+    extractWithChild(child: LexicalNode, selection: BaseSelection | null, destination: 'clone' | 'html'): boolean;
 }
 export declare function $isElementNode(node: LexicalNode | null | undefined): node is ElementNode;

@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-import { GridSelection, LexicalEditor, LexicalNode, NodeSelection, Point, RangeSelection, TextNode } from 'lexical';
+import { BaseSelection, LexicalEditor, LexicalNode, Point, TextNode } from 'lexical';
 /**
  * Returns a copy of a node, but generates a new key for the copy.
  * @param node - The node to be cloned.
@@ -19,7 +19,7 @@ export declare function $cloneWithProperties<T extends LexicalNode>(node: T): T;
  * @param textNode - The TextNode to be edited.
  * @returns The updated TextNode.
  */
-export declare function $sliceSelectedTextNodeContent(selection: RangeSelection | GridSelection | NodeSelection, textNode: TextNode): LexicalNode;
+export declare function $sliceSelectedTextNodeContent(selection: BaseSelection, textNode: TextNode): LexicalNode;
 /**
  * Determines if the current selection is at the end of the node.
  * @param point - The point of the selection to test.
@@ -34,7 +34,7 @@ export declare function $isAtNodeEnd(point: Point): boolean;
  * @param anchor - The anchor of the current selection, where the selection should be pointing.
  * @param delCount - The amount of characters to delete. Useful as a dynamic variable eg. textContentSize - maxLength;
  */
-export declare function trimTextContentFromAnchor(editor: LexicalEditor, anchor: Point, delCount: number): void;
+export declare function $trimTextContentFromAnchor(editor: LexicalEditor, anchor: Point, delCount: number): void;
 /**
  * Gets the TextNode's style object and adds the styles to the CSS.
  * @param node - The TextNode to add styles to.
@@ -45,6 +45,6 @@ export declare function $addNodeStyle(node: TextNode): void;
  * Will update partially selected TextNodes by splitting the TextNode and applying
  * the styles to the appropriate one.
  * @param selection - The selected node(s) to update.
- * @param patch - The patch to apply, which can include multiple styles. { CSSProperty: value }
+ * @param patch - The patch to apply, which can include multiple styles. { CSSProperty: value }. Can also accept a function that returns the new property value.
  */
-export declare function $patchStyleText(selection: RangeSelection | GridSelection, patch: Record<string, string | null>): void;
+export declare function $patchStyleText(selection: BaseSelection, patch: Record<string, string | null | ((currentStyleValue: string | null) => string)>): void;

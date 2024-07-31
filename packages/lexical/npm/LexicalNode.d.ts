@@ -6,17 +6,18 @@
  *
  */
 import type { EditorConfig, LexicalEditor } from './LexicalEditor';
-import type { GridSelection, NodeSelection, RangeSelection } from './LexicalSelection';
+import type { BaseSelection, RangeSelection } from './LexicalSelection';
+import type { KlassConstructor } from 'lexical';
 import { ElementNode } from '.';
 export type NodeMap = Map<NodeKey, LexicalNode>;
 export type SerializedLexicalNode = {
     type: string;
     version: number;
 };
-export declare function removeNode(nodeToRemove: LexicalNode, restoreSelection: boolean, preserveEmptyParent?: boolean): void;
+export declare function $removeNode(nodeToRemove: LexicalNode, restoreSelection: boolean, preserveEmptyParent?: boolean): void;
 export type DOMConversion<T extends HTMLElement = HTMLElement> = {
     conversion: DOMConversionFn<T>;
-    priority: 0 | 1 | 2 | 3 | 4;
+    priority?: 0 | 1 | 2 | 3 | 4;
 };
 export type DOMConversionFn<T extends HTMLElement = HTMLElement> = (element: T) => DOMConversionOutput | null;
 export type DOMChildConversion = (lexicalNode: LexicalNode, parentLexicalNode: LexicalNode | null | undefined) => LexicalNode | null | undefined;
@@ -33,7 +34,7 @@ export type DOMExportOutput = {
 };
 export type NodeKey = string;
 export declare class LexicalNode {
-    [x: string]: any;
+    ['constructor']: KlassConstructor<typeof LexicalNode>;
     /** @internal */
     __type: string;
     /** @internal */
@@ -58,11 +59,13 @@ export declare class LexicalNode {
      *
      */
     static clone(_data: unknown): LexicalNode;
+    static importDOM?: () => DOMConversionMap<any> | null;
     constructor(key?: NodeKey);
     /**
      * Returns the string type of this node.
      */
     getType(): string;
+    isInline(): boolean;
     /**
      * Returns true if there is a path between this node and the RootNode, false otherwise.
      * This is a way of determining if the node is "attached" EditorState. Unattached nodes
@@ -76,7 +79,7 @@ export declare class LexicalNode {
      *
      * @param selection - The selection that we want to determine if the node is in.
      */
-    isSelected(selection?: null | RangeSelection | NodeSelection | GridSelection): boolean;
+    isSelected(selection?: null | BaseSelection): boolean;
     /**
      * Returns this nodes key.
      */
@@ -98,13 +101,13 @@ export declare class LexicalNode {
      * non-root ancestor of this node, or null if none is found. See {@link lexical!$isRootOrShadowRoot}
      * for more information on which Elements comprise "roots".
      */
-    getTopLevelElement(): ElementNode | this | null;
+    getTopLevelElement(): ElementNode | null;
     /**
      * Returns the highest (in the EditorState tree)
      * non-root ancestor of this node, or throws if none is found. See {@link lexical!$isRootOrShadowRoot}
      * for more information on which Elements comprise "roots".
      */
-    getTopLevelElementOrThrow(): ElementNode | this;
+    getTopLevelElementOrThrow(): ElementNode;
     /**
      * Returns a list of the every ancestor of this node,
      * all the way up to the RootNode.
@@ -290,7 +293,7 @@ export declare class LexicalNode {
     /**
      * Inserts a node before this LexicalNode (as the previous sibling).
      *
-     * @param nodeToInsert - The node to insert after this one.
+     * @param nodeToInsert - The node to insert before this one.
      * @param restoreSelection - Whether or not to attempt to resolve the
      * selection to the appropriate place after the operation is complete.
      * */
@@ -307,6 +310,8 @@ export declare class LexicalNode {
      *
      * */
     createParentElementNode(): ElementNode;
+    selectStart(): RangeSelection;
+    selectEnd(): RangeSelection;
     /**
      * Moves selection to the previous sibling of this node, at the specified offsets.
      *
@@ -328,4 +333,12 @@ export declare class LexicalNode {
      * */
     markDirty(): void;
 }
+/**
+ * Insert a series of nodes after this LexicalNode (as next siblings)
+ *
+ * @param firstToInsert - The first node to insert after this one.
+ * @param lastToInsert - The last node to insert after this one. Must be a
+ * later sibling of FirstNode. If not provided, it will be its last sibling.
+ */
+export declare function insertRangeAfter(node: LexicalNode, firstToInsert: LexicalNode, lastToInsert?: LexicalNode): void;
 export {};

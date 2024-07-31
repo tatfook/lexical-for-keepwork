@@ -6,12 +6,14 @@
  *
  */
 import type { EditorState, SerializedEditorState } from './LexicalEditorState';
-import type { DOMConversion, NodeKey } from './LexicalNode';
+import type { DOMConversion, DOMConversionMap, DOMExportOutput, NodeKey } from './LexicalNode';
 import { LexicalNode } from './LexicalNode';
 export type Spread<T1, T2> = Omit<T2, keyof T1> & T1;
-export type Klass<T extends LexicalNode> = {
-    new (...args: any[]): T;
-} & Omit<LexicalNode, 'constructor'>;
+export type KlassConstructor<Cls extends GenericConstructor<any>> = GenericConstructor<InstanceType<Cls>> & {
+    [k in keyof Cls]: Cls[k];
+};
+type GenericConstructor<T> = new (...args: any[]) => T;
+export type Klass<T extends LexicalNode> = InstanceType<T['constructor']> extends T ? T['constructor'] : GenericConstructor<T> & T['constructor'];
 export type EditorThemeClassName = string;
 export type TextNodeThemeClasses = {
     base?: EditorThemeClassName;
@@ -24,6 +26,7 @@ export type TextNodeThemeClasses = {
     superscript?: EditorThemeClassName;
     underline?: EditorThemeClassName;
     underlineStrikethrough?: EditorThemeClassName;
+    [key: string]: EditorThemeClassName | undefined;
 };
 export type EditorUpdateOptions = {
     onUpdate?: () => void;
@@ -58,6 +61,7 @@ export type EditorThemeClasses = {
         ulDepth?: Array<EditorThemeClassName>;
         ol?: EditorThemeClassName;
         olDepth?: Array<EditorThemeClassName>;
+        checklist?: EditorThemeClassName;
         listitem?: EditorThemeClassName;
         listitemChecked?: EditorThemeClassName;
         listitemUnchecked?: EditorThemeClassName;
@@ -102,22 +106,28 @@ export type EditorConfig = {
     theme: EditorThemeClasses;
     ignoreMutationDOMChanges?: (node: Node) => boolean;
 };
+export type LexicalNodeReplacement = {
+    replace: Klass<LexicalNode>;
+    with: <T extends {
+        new (...args: any): any;
+    }>(node: InstanceType<T>) => LexicalNode;
+    withKlass?: Klass<LexicalNode>;
+};
+export type HTMLConfig = {
+    export?: Map<Klass<LexicalNode>, (editor: LexicalEditor, target: LexicalNode) => DOMExportOutput>;
+    import?: DOMConversionMap;
+};
 export type CreateEditorArgs = {
     disableEvents?: boolean;
     editorState?: EditorState;
     namespace?: string;
-    nodes?: ReadonlyArray<Klass<LexicalNode> | {
-        replace: Klass<LexicalNode>;
-        with: <T extends {
-            new (...args: any): any;
-        }>(node: InstanceType<T>) => LexicalNode;
-        withKlass?: Klass<LexicalNode>;
-    }>;
+    nodes?: ReadonlyArray<Klass<LexicalNode> | LexicalNodeReplacement>;
     onError?: ErrorHandler;
     parentEditor?: LexicalEditor;
     editable?: boolean;
     theme?: EditorThemeClasses;
     ignoreMutationDOMChanges?: (node: Node) => boolean;
+    html?: HTMLConfig;
 };
 export type RegisteredNodes = Map<string, RegisteredNode>;
 export type RegisteredNode = {
@@ -125,6 +135,7 @@ export type RegisteredNode = {
     transforms: Set<Transform<LexicalNode>>;
     replace: null | ((node: LexicalNode) => LexicalNode);
     replaceWithKlass: null | Klass<LexicalNode>;
+    exportDOM?: (editor: LexicalEditor, targetNode: LexicalNode) => DOMExportOutput;
 };
 export type Transform<T extends LexicalNode> = (node: T) => void;
 export type ErrorHandler = (error: Error) => void;
@@ -206,6 +217,7 @@ export declare function resetEditor(editor: LexicalEditor, prevRootElement: null
  */
 export declare function createEditor(editorConfig?: CreateEditorArgs): LexicalEditor;
 export declare class LexicalEditor {
+    ['constructor']: KlassConstructor<typeof LexicalEditor>;
     /** @internal */
     _headless: boolean;
     /** @internal */

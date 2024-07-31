@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-import { LexicalCommand, LexicalEditor, TextNode } from 'lexical';
+import { CommandListenerPriority, LexicalCommand, LexicalEditor, TextNode } from 'lexical';
 import { MutableRefObject, ReactPortal } from 'react';
 export type MenuTextMatch = {
     leadOffset: number;
@@ -35,7 +35,7 @@ export declare const SCROLL_TYPEAHEAD_OPTION_INTO_VIEW_COMMAND: LexicalCommand<{
     index: number;
     option: MenuOption;
 }>;
-export declare function LexicalMenu<TOption extends MenuOption>({ close, editor, anchorElementRef, resolution, options, menuRenderFn, onSelectOption, shouldSplitNodeWithQuery, }: {
+export declare function LexicalMenu<TOption extends MenuOption>({ close, editor, anchorElementRef, resolution, options, menuRenderFn, onSelectOption, shouldSplitNodeWithQuery, commandPriority, }: {
     close: () => void;
     editor: LexicalEditor;
     anchorElementRef: MutableRefObject<HTMLElement>;
@@ -44,6 +44,7 @@ export declare function LexicalMenu<TOption extends MenuOption>({ close, editor,
     shouldSplitNodeWithQuery?: boolean;
     menuRenderFn: MenuRenderFn<TOption>;
     onSelectOption: (option: TOption, textNodeContainingQuery: TextNode | null, closeMenu: () => void, matchingString: string) => void;
+    commandPriority?: CommandListenerPriority;
 }): JSX.Element | null;
-export declare function useMenuAnchorRef(resolution: MenuResolution | null, setResolution: (r: MenuResolution | null) => void, className?: string): MutableRefObject<HTMLElement>;
+export declare function useMenuAnchorRef(resolution: MenuResolution | null, setResolution: (r: MenuResolution | null) => void, className?: string, parent?: HTMLElement): MutableRefObject<HTMLElement>;
 export type TriggerFn = (text: string, editor: LexicalEditor) => MenuTextMatch | null;

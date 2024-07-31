@@ -5,9 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-import type { EditorConfig, LexicalEditor, Spread } from '../LexicalEditor';
+import type { EditorConfig, KlassConstructor, LexicalEditor, Spread } from '../LexicalEditor';
 import type { DOMConversionMap, DOMExportOutput, NodeKey, SerializedLexicalNode } from '../LexicalNode';
-import type { GridSelection, NodeSelection, RangeSelection } from '../LexicalSelection';
+import type { BaseSelection, RangeSelection } from '../LexicalSelection';
 import { LexicalNode } from '../LexicalNode';
 export type SerializedTextNode = Spread<{
     detail: number;
@@ -27,6 +27,7 @@ export type TextMark = {
 export type TextMarks = Array<TextMark>;
 /** @noInheritDoc */
 export declare class TextNode extends LexicalNode {
+    ['constructor']: KlassConstructor<typeof TextNode>;
     __text: string;
     /** @internal */
     __format: number;
@@ -127,13 +128,18 @@ export declare class TextNode extends LexicalNode {
      * @returns a number representing the TextFormatTypes applied to the node.
      */
     getFormatFlags(type: TextFormatType, alignWithFormat: null | number): number;
-    createDOM(config: EditorConfig): HTMLElement;
+    /**
+     *
+     * @returns true if the text node supports font styling, false otherwise.
+     */
+    canHaveFormat(): boolean;
+    createDOM(config: EditorConfig, editor?: LexicalEditor): HTMLElement;
     updateDOM(prevNode: TextNode, dom: HTMLElement, config: EditorConfig): boolean;
     static importDOM(): DOMConversionMap | null;
     static importJSON(serializedNode: SerializedTextNode): TextNode;
     exportDOM(editor: LexicalEditor): DOMExportOutput;
     exportJSON(): SerializedTextNode;
-    selectionTransform(prevSelection: null | RangeSelection | NodeSelection | GridSelection, nextSelection: RangeSelection): void;
+    selectionTransform(prevSelection: null | BaseSelection, nextSelection: RangeSelection): void;
     /**
      * Sets the node format to the provided TextFormatType or 32-bit integer. Note that the TextFormatType
      * version of the argument can only specify one format and doing so will remove all other formats that
@@ -149,7 +155,7 @@ export declare class TextNode extends LexicalNode {
      * Sets the node detail to the provided TextDetailType or 32-bit integer. Note that the TextDetailType
      * version of the argument can only specify one detail value and doing so will remove all other detail values that
      * may be applied to the node. For toggling behavior, consider using {@link TextNode.toggleDirectionless}
-     * or {@link TextNode.togglerUnmergeable}
+     * or {@link TextNode.toggleUnmergeable}
      *
      * @param detail - TextDetailType or 32-bit integer representing the node detail.
      *
@@ -167,7 +173,8 @@ export declare class TextNode extends LexicalNode {
      */
     setStyle(style: string): this;
     /**
-     * Applies the provided format to this TextNode if it's not present. Removes it if it is present.
+     * Applies the provided format to this TextNode if it's not present. Removes it if it's present.
+     * The subscript and superscript formats are mutually exclusive.
      * Prefer using this method to turn specific formats on and off.
      *
      * @param type - TextFormatType to toggle.
@@ -210,6 +217,8 @@ export declare class TextNode extends LexicalNode {
      * @returns the new RangeSelection.
      */
     select(_anchorOffset?: number, _focusOffset?: number): RangeSelection;
+    selectStart(): RangeSelection;
+    selectEnd(): RangeSelection;
     /**
      * Inserts the provided text into this TextNode at the provided offset, deleting the number of characters
      * specified. Can optionally calculate a new selection after the operation is complete.

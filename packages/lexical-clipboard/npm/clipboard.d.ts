@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-import { GridSelection, LexicalEditor, LexicalNode, NodeSelection, RangeSelection } from 'lexical';
+import { BaseSelection, LexicalEditor, LexicalNode } from 'lexical';
 /**
  * Returns the *currently selected* Lexical content as an HTML string, relying on the
  * logic defined in the exportDOM methods on the LexicalNode classes. Note that
@@ -34,7 +34,7 @@ export declare function $getLexicalContent(editor: LexicalEditor): null | string
  * @param dataTransfer an object conforming to the [DataTransfer interface] (https://html.spec.whatwg.org/multipage/dnd.html#the-datatransfer-interface)
  * @param selection the selection to use as the insertion point for the content in the DataTransfer object
  */
-export declare function $insertDataTransferForPlainText(dataTransfer: DataTransfer, selection: RangeSelection | GridSelection): void;
+export declare function $insertDataTransferForPlainText(dataTransfer: DataTransfer, selection: BaseSelection): void;
 /**
  * Attempts to insert content of the mime-types application/x-lexical-editor, text/html,
  * text/plain, or text/uri-list (in descending order of priority) from the provided DataTransfer
@@ -44,7 +44,7 @@ export declare function $insertDataTransferForPlainText(dataTransfer: DataTransf
  * @param selection the selection to use as the insertion point for the content in the DataTransfer object
  * @param editor the LexicalEditor the content is being inserted into.
  */
-export declare function $insertDataTransferForRichText(dataTransfer: DataTransfer, selection: RangeSelection | GridSelection, editor: LexicalEditor): void;
+export declare function $insertDataTransferForRichText(dataTransfer: DataTransfer, selection: BaseSelection, editor: LexicalEditor): void;
 /**
  * Inserts Lexical nodes into the editor using different strategies depending on
  * some simple selection-based heuristics. If you're looking for a generic way to
@@ -55,7 +55,7 @@ export declare function $insertDataTransferForRichText(dataTransfer: DataTransfe
  * @param nodes The nodes to insert.
  * @param selection The selection to insert the nodes into.
  */
-export declare function $insertGeneratedNodes(editor: LexicalEditor, nodes: Array<LexicalNode>, selection: RangeSelection | GridSelection): void;
+export declare function $insertGeneratedNodes(editor: LexicalEditor, nodes: Array<LexicalNode>, selection: BaseSelection): void;
 export interface BaseSerializedNode {
     children?: Array<BaseSerializedNode>;
     type: string;
@@ -68,7 +68,7 @@ export interface BaseSerializedNode {
  * @param selection Selection to get the JSON content from.
  * @returns an object with the editor namespace and a list of serializable nodes as JavaScript objects.
  */
-export declare function $generateJSONFromSelectedNodes<SerializedNode extends BaseSerializedNode>(editor: LexicalEditor, selection: RangeSelection | NodeSelection | GridSelection | null): {
+export declare function $generateJSONFromSelectedNodes<SerializedNode extends BaseSerializedNode>(editor: LexicalEditor, selection: BaseSelection | null): {
     namespace: string;
     nodes: Array<SerializedNode>;
 };

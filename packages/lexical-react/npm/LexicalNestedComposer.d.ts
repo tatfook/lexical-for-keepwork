@@ -5,12 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-import { EditorThemeClasses, Klass, LexicalEditor, LexicalNode } from 'lexical';
+import { EditorThemeClasses, Klass, LexicalEditor, LexicalNode, LexicalNodeReplacement } from 'lexical';
 import { ReactNode } from 'react';
 export declare function LexicalNestedComposer({ initialEditor, children, initialNodes, initialTheme, skipCollabChecks, }: {
     children: ReactNode;
     initialEditor: LexicalEditor;
     initialTheme?: EditorThemeClasses;
-    initialNodes?: ReadonlyArray<Klass<LexicalNode>>;
+    initialNodes?: ReadonlyArray<Klass<LexicalNode> | LexicalNodeReplacement>;
     skipCollabChecks?: true;
 }): JSX.Element;

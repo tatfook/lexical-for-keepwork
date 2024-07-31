@@ -1,4 +1,3 @@
-/** @module @lexical/utils */
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
@@ -6,8 +5,21 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-import { $splitNode, EditorState, ElementNode, isHTMLAnchorElement, isHTMLElement, Klass, LexicalEditor, LexicalNode } from 'lexical';
-export { $splitNode, isHTMLAnchorElement, isHTMLElement };
+import { EditorState, ElementNode, Klass, LexicalEditor, LexicalNode } from 'lexical';
+export { default as markSelection } from './markSelection';
+export { default as mergeRegister } from './mergeRegister';
+export { default as positionNodeOnRange } from './positionNodeOnRange';
+export { $splitNode, isBlockDomNode, isHTMLAnchorElement, isHTMLElement, isInlineDomNode, } from 'lexical';
+export declare const CAN_USE_BEFORE_INPUT: boolean;
+export declare const CAN_USE_DOM: boolean;
+export declare const IS_ANDROID: boolean;
+export declare const IS_ANDROID_CHROME: boolean;
+export declare const IS_APPLE: boolean;
+export declare const IS_APPLE_WEBKIT: boolean;
+export declare const IS_CHROME: boolean;
+export declare const IS_FIREFOX: boolean;
+export declare const IS_IOS: boolean;
+export declare const IS_SAFARI: boolean;
 export type DFSNode = Readonly<{
     depth: number;
     node: LexicalNode;
@@ -66,6 +78,15 @@ export declare function mediaFileReader(files: Array<File>, acceptableMimeTypes:
  */
 export declare function $dfs(startingNode?: LexicalNode, endingNode?: LexicalNode): Array<DFSNode>;
 /**
+ * Performs a right-to-left preorder tree traversal.
+ * From the starting node it goes to the rightmost child, than backtracks to paret and finds new rightmost path.
+ * It will return the next node in traversal sequence after the startingNode.
+ * The traversal is similar to $dfs functions above, but the nodes are visited right-to-left, not left-to-right.
+ * @param startingNode - The node to start the search.
+ * @returns The next node in pre-order right to left traversal sequence or `null`, if the node does not exist
+ */
+export declare function $getNextRightPreorderNode(startingNode: LexicalNode): LexicalNode | null;
+/**
  * Takes a node and traverses up its ancestors (toward the root node)
  * in order to find a specific type of node.
  * @param node - the node to begin searching.
@@ -89,31 +110,10 @@ export type DOMNodeToLexicalConversionMap = Record<string, DOMNodeToLexicalConve
  * @param findFn - A testing function that returns true if the current node satisfies the testing parameters.
  * @returns A parent node that matches the findFn parameters, or null if one wasn't found.
  */
-export declare function $findMatchingParent(startingNode: LexicalNode, findFn: (node: LexicalNode) => boolean): LexicalNode | null;
-type Func = () => void;
-/**
- * Returns a function that will execute all functions passed when called. It is generally used
- * to register multiple lexical listeners and then tear them down with a single function call, such
- * as React's useEffect hook.
- * @example
- * ```ts
- * useEffect(() => {
- *   return mergeRegister(
- *     editor.registerCommand(...registerCommand1 logic),
- *     editor.registerCommand(...registerCommand2 logic),
- *     editor.registerCommand(...registerCommand3 logic)
- *   )
- * }, [editor])
- * ```
- * In this case, useEffect is returning the function returned by mergeRegister as a cleanup
- * function to be executed after either the useEffect runs again (due to one of its dependencies
- * updating) or the compenent it resides in unmounts.
- * Note the functions don't neccesarily need to be in an array as all arguements
- * are considered to be the func argument and spread from there.
- * @param func - An array of functions meant to be executed by the returned function.
- * @returns the function which executes all the passed register command functions.
- */
-export declare function mergeRegister(...func: Array<Func>): () => void;
+export declare const $findMatchingParent: {
+    <T extends LexicalNode>(startingNode: LexicalNode, findFn: (node: LexicalNode) => node is T): T | null;
+    (startingNode: LexicalNode, findFn: (node: LexicalNode) => boolean): LexicalNode | null;
+};
 /**
  * Attempts to resolve nested element nodes of the same type into a single node of that type.
  * It is generally used for marks/commenting
@@ -143,8 +143,8 @@ export declare function $insertNodeToNearestRoot<T extends LexicalNode>(node: T)
 /**
  * Wraps the node into another node created from a createElementNode function, eg. $createParagraphNode
  * @param node - Node to be wrapped.
- * @param createElementNode - Creates a new lexcial element to wrap the to-be-wrapped node and returns it.
- * @returns A new lexcial element with the previous node appended within (as a child, including its children).
+ * @param createElementNode - Creates a new lexical element to wrap the to-be-wrapped node and returns it.
+ * @returns A new lexical element with the previous node appended within (as a child, including its children).
  */
 export declare function $wrapNodeInElement(node: LexicalNode, createElementNode: () => ElementNode): ElementNode;
 type ObjectKlass<T> = new (...args: any[]) => T;
@@ -167,3 +167,9 @@ export declare function $filter<T>(nodes: Array<LexicalNode>, filterFn: (node: L
  * @param node Node that needs to be appended
  */
 export declare function $insertFirst(parent: ElementNode, node: LexicalNode): void;
+/**
+ * Calculates the zoom level of an element as a result of using
+ * css zoom property.
+ * @param element
+ */
+export declare function calculateZoomLevel(element: Element | null): number;

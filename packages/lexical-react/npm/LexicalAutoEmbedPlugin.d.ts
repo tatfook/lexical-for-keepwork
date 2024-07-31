@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-import type { LexicalNode } from 'lexical';
+import type { CommandListenerPriority, LexicalNode } from 'lexical';
 import { MenuOption, MenuRenderFn } from '@lexical/react/LexicalNodeMenuPlugin';
 import { LexicalCommand, LexicalEditor } from 'lexical';
 export type EmbedMatchResult<TEmbedMatchResult = unknown> = {
@@ -33,6 +33,7 @@ type LexicalAutoEmbedPluginProps<TEmbedConfig extends EmbedConfig> = {
     onOpenEmbedModalForConfig: (embedConfig: TEmbedConfig) => void;
     getMenuOptions: (activeEmbedConfig: TEmbedConfig, embedFn: () => void, dismissFn: () => void) => Array<AutoEmbedOption>;
     menuRenderFn: MenuRenderFn<AutoEmbedOption>;
+    menuCommandPriority?: CommandListenerPriority;
 };
-export declare function LexicalAutoEmbedPlugin<TEmbedConfig extends EmbedConfig>({ embedConfigs, onOpenEmbedModalForConfig, getMenuOptions, menuRenderFn, }: LexicalAutoEmbedPluginProps<TEmbedConfig>): JSX.Element | null;
+export declare function LexicalAutoEmbedPlugin<TEmbedConfig extends EmbedConfig>({ embedConfigs, onOpenEmbedModalForConfig, getMenuOptions, menuRenderFn, menuCommandPriority, }: LexicalAutoEmbedPluginProps<TEmbedConfig>): JSX.Element | null;
 export {};

@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-import type { EditorConfig, GridSelection, LexicalNode, NodeKey, NodeSelection, RangeSelection, SerializedElementNode, Spread } from 'lexical';
+import type { BaseSelection, EditorConfig, LexicalNode, NodeKey, RangeSelection, SerializedElementNode, Spread } from 'lexical';
 import { ElementNode } from 'lexical';
 export type SerializedMarkNode = Spread<{
     ids: Array<string>;
@@ -31,7 +31,7 @@ export declare class MarkNode extends ElementNode {
     canInsertTextAfter(): false;
     canBeEmpty(): false;
     isInline(): true;
-    extractWithChild(child: LexicalNode, selection: RangeSelection | NodeSelection | GridSelection, destination: 'clone' | 'html'): boolean;
+    extractWithChild(child: LexicalNode, selection: BaseSelection, destination: 'clone' | 'html'): boolean;
     excludeFromCopy(destination: 'clone' | 'html'): boolean;
 }
 export declare function $createMarkNode(ids: Array<string>): MarkNode;

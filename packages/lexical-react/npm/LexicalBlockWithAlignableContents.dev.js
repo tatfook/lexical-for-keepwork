@@ -3,7 +3,9 @@
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
+ *
  */
+
 'use strict';
 
 var LexicalComposerContext = require('@lexical/react/LexicalComposerContext');
@@ -13,6 +15,19 @@ var utils = require('@lexical/utils');
 var lexical = require('lexical');
 var React = require('react');
 
+function _interopNamespaceDefault(e) {
+  var n = Object.create(null);
+  if (e) {
+    for (var k in e) {
+      n[k] = e[k];
+    }
+  }
+  n.default = e;
+  return n;
+}
+
+var React__namespace = /*#__PURE__*/_interopNamespaceDefault(React);
+
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
@@ -20,6 +35,7 @@ var React = require('react');
  * LICENSE file in the root directory of this source tree.
  *
  */
+
 function BlockWithAlignableContents({
   children,
   format,
@@ -29,32 +45,28 @@ function BlockWithAlignableContents({
   const [editor] = LexicalComposerContext.useLexicalComposerContext();
   const [isSelected, setSelected, clearSelection] = useLexicalNodeSelection.useLexicalNodeSelection(nodeKey);
   const ref = React.useRef(null);
-  const onDelete = React.useCallback(event => {
+  const $onDelete = React.useCallback(event => {
     if (isSelected && lexical.$isNodeSelection(lexical.$getSelection())) {
       event.preventDefault();
       const node = lexical.$getNodeByKey(nodeKey);
-
       if (lexical.$isDecoratorNode(node)) {
         node.remove();
+        return true;
       }
     }
-
     return false;
   }, [isSelected, nodeKey]);
   React.useEffect(() => {
     return utils.mergeRegister(editor.registerCommand(lexical.FORMAT_ELEMENT_COMMAND, formatType => {
       if (isSelected) {
         const selection = lexical.$getSelection();
-
         if (lexical.$isNodeSelection(selection)) {
           const node = lexical.$getNodeByKey(nodeKey);
-
           if (LexicalDecoratorBlockNode.$isDecoratorBlockNode(node)) {
             node.setFormat(formatType);
           }
         } else if (lexical.$isRangeSelection(selection)) {
           const nodes = selection.getNodes();
-
           for (const node of nodes) {
             if (LexicalDecoratorBlockNode.$isDecoratorBlockNode(node)) {
               node.setFormat(formatType);
@@ -64,27 +76,22 @@ function BlockWithAlignableContents({
             }
           }
         }
-
         return true;
       }
-
       return false;
     }, lexical.COMMAND_PRIORITY_LOW), editor.registerCommand(lexical.CLICK_COMMAND, event => {
       if (event.target === ref.current) {
         event.preventDefault();
-
         if (!event.shiftKey) {
           clearSelection();
         }
-
         setSelected(!isSelected);
         return true;
       }
-
       return false;
-    }, lexical.COMMAND_PRIORITY_LOW), editor.registerCommand(lexical.KEY_DELETE_COMMAND, onDelete, lexical.COMMAND_PRIORITY_LOW), editor.registerCommand(lexical.KEY_BACKSPACE_COMMAND, onDelete, lexical.COMMAND_PRIORITY_LOW));
-  }, [clearSelection, editor, isSelected, nodeKey, onDelete, setSelected]);
-  return /*#__PURE__*/React.createElement("div", {
+    }, lexical.COMMAND_PRIORITY_LOW), editor.registerCommand(lexical.KEY_DELETE_COMMAND, $onDelete, lexical.COMMAND_PRIORITY_LOW), editor.registerCommand(lexical.KEY_BACKSPACE_COMMAND, $onDelete, lexical.COMMAND_PRIORITY_LOW));
+  }, [clearSelection, editor, isSelected, nodeKey, $onDelete, setSelected]);
+  return /*#__PURE__*/React__namespace.createElement("div", {
     className: [className.base, isSelected ? className.focus : null].filter(Boolean).join(' '),
     ref: ref,
     style: {

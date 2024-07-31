@@ -3,7 +3,9 @@
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
+ *
  */
+
 'use strict';
 
 var LexicalComposerContext = require('@lexical/react/LexicalComposerContext');
@@ -16,6 +18,7 @@ var react = require('react');
  * LICENSE file in the root directory of this source tree.
  *
  */
+
 function AutoFocusPlugin({
   defaultSelection
 }) {
@@ -28,7 +31,6 @@ function AutoFocusPlugin({
       // of this plugin, which should preserve focus too.
       const activeElement = document.activeElement;
       const rootElement = editor.getRootElement();
-
       if (rootElement !== null && (activeElement === null || !rootElement.contains(activeElement))) {
         // Note: preventScroll won't work in Webkit.
         rootElement.focus({

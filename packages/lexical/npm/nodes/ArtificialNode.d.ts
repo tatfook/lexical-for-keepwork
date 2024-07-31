@@ -5,8 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-import type { LexicalNode } from '../LexicalNode';
+import type { EditorConfig } from 'lexical';
 import { ElementNode } from './LexicalElementNode';
-export declare class DEPRECATED_GridRowNode extends ElementNode {
+export declare class ArtificialNode__DO_NOT_USE extends ElementNode {
+    static getType(): string;
+    createDOM(config: EditorConfig): HTMLElement;
 }
-export declare function DEPRECATED_$isGridRowNode(node: LexicalNode | null | undefined): node is DEPRECATED_GridRowNode;

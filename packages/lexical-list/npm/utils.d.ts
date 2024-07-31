@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-import type { LexicalNode } from 'lexical';
+import type { LexicalNode, Spread } from 'lexical';
 import { ListItemNode, ListNode } from './';
 /**
  * Checks the depth of listNode from the root node.
@@ -32,18 +32,22 @@ export declare function $isLastItemInList(listItem: ListItemNode): boolean;
  * @returns An array containing all nodes of type ListItemNode found.
  */
 export declare function $getAllListItems(node: ListNode): Array<ListItemNode>;
+declare const NestedListNodeBrand: unique symbol;
 /**
  * Checks to see if the passed node is a ListItemNode and has a ListNode as a child.
  * @param node - The node to be checked.
  * @returns true if the node is a ListItemNode and has a ListNode child, false otherwise.
  */
-export declare function isNestedListNode(node: LexicalNode | null | undefined): boolean;
+export declare function isNestedListNode(node: LexicalNode | null | undefined): node is Spread<{
+    getFirstChild(): ListNode;
+    [NestedListNodeBrand]: never;
+}, ListItemNode>;
 /**
  * Traverses up the tree and returns the first ListItemNode found.
  * @param node - Node to start the search.
  * @returns The first ListItemNode found, or null if none exist.
  */
-export declare function findNearestListItemNode(node: LexicalNode): ListItemNode | null;
+export declare function $findNearestListItemNode(node: LexicalNode): ListItemNode | null;
 /**
  * Takes a deeply nested ListNode or ListItemNode and traverses up the branch to delete the first
  * ancestral ListNode (which could be the root ListNode) or ListItemNode with siblings, essentially
@@ -57,4 +61,5 @@ export declare function $removeHighestEmptyListParent(sublist: ListItemNode | Li
  * @param node - The node to be wrapped into a ListItemNode
  * @returns The ListItemNode which the passed node is wrapped in.
  */
-export declare function wrapInListItem(node: LexicalNode): ListItemNode;
+export declare function $wrapInListItem(node: LexicalNode): ListItemNode;
+export {};

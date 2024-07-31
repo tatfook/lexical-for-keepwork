@@ -14,7 +14,6 @@ export declare class CollabDecoratorNode {
     _key: NodeKey;
     _parent: CollabElementNode;
     _type: string;
-    _unobservers: Set<() => void>;
     constructor(xmlElem: XmlElement, parent: CollabElementNode, type: string);
     getPrevNode(nodeMap: null | NodeMap): null | DecoratorNode<unknown>;
     getNode(): null | DecoratorNode<unknown>;

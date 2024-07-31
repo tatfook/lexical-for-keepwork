@@ -5,10 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-import type { ElementFormatType, LexicalCommand, TextFormatType } from 'lexical';
+import type { BaseSelection, ElementFormatType, LexicalCommand, LexicalNode, TextFormatType } from 'lexical';
 export type PasteCommandType = ClipboardEvent | InputEvent | KeyboardEvent;
 export declare function createCommand<T>(type?: string): LexicalCommand<T>;
 export declare const SELECTION_CHANGE_COMMAND: LexicalCommand<void>;
+export declare const SELECTION_INSERT_CLIPBOARD_NODES_COMMAND: LexicalCommand<{
+    nodes: Array<LexicalNode>;
+    selection: BaseSelection;
+}>;
 export declare const CLICK_COMMAND: LexicalCommand<MouseEvent>;
 export declare const DELETE_CHARACTER_COMMAND: LexicalCommand<boolean>;
 export declare const INSERT_LINE_BREAK_COMMAND: LexicalCommand<boolean>;

@@ -7,7 +7,7 @@
  */
 /// <reference types="react" />
 import type { MenuRenderFn, MenuResolution } from './shared/LexicalMenu';
-import { NodeKey, TextNode } from 'lexical';
+import { CommandListenerPriority, NodeKey, TextNode } from 'lexical';
 import { MenuOption } from './shared/LexicalMenu';
 export type NodeMenuPluginProps<TOption extends MenuOption> = {
     onSelectOption: (option: TOption, textNodeContainingQuery: TextNode | null, closeMenu: () => void, matchingString: string) => void;
@@ -17,6 +17,8 @@ export type NodeMenuPluginProps<TOption extends MenuOption> = {
     onOpen?: (resolution: MenuResolution) => void;
     menuRenderFn: MenuRenderFn<TOption>;
     anchorClassName?: string;
+    commandPriority?: CommandListenerPriority;
+    parent?: HTMLElement;
 };
-export declare function LexicalNodeMenuPlugin<TOption extends MenuOption>({ options, nodeKey, onClose, onOpen, onSelectOption, menuRenderFn, anchorClassName, }: NodeMenuPluginProps<TOption>): JSX.Element | null;
+export declare function LexicalNodeMenuPlugin<TOption extends MenuOption>({ options, nodeKey, onClose, onOpen, onSelectOption, menuRenderFn, anchorClassName, commandPriority, parent, }: NodeMenuPluginProps<TOption>): JSX.Element | null;
 export { MenuOption, MenuRenderFn, MenuResolution };

@@ -3,7 +3,9 @@
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
+ *
  */
+
 'use strict'
-const LexicalAutoEmbedPlugin = ['development', 'test'].includes(process.env.NODE_ENV) ? require('./LexicalAutoEmbedPlugin.dev.js') : require('./LexicalAutoEmbedPlugin.prod.js')
+const LexicalAutoEmbedPlugin = ['development', 'test'].includes(process.env.NODE_ENV) ? require('./LexicalAutoEmbedPlugin.dev.js') : require('./LexicalAutoEmbedPlugin.prod.js');
 module.exports = LexicalAutoEmbedPlugin;

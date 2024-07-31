@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-import type { DOMConversionMap, EditorConfig, GridSelection, LexicalNode, NodeKey, NodeSelection, ParagraphNode, RangeSelection, SerializedElementNode, Spread } from 'lexical';
-import { ElementNode } from 'lexical';
+import type { BaseSelection, DOMConversionMap, DOMExportOutput, EditorConfig, LexicalNode, NodeKey, ParagraphNode, RangeSelection, SerializedElementNode, Spread } from 'lexical';
+import { ElementNode, LexicalEditor } from 'lexical';
 export type SerializedListItemNode = Spread<{
     checked: boolean | undefined;
     value: number;
@@ -25,6 +25,7 @@ export declare class ListItemNode extends ElementNode {
     static transform(): (node: LexicalNode) => void;
     static importDOM(): DOMConversionMap | null;
     static importJSON(serializedNode: SerializedListItemNode): ListItemNode;
+    exportDOM(editor: LexicalEditor): DOMExportOutput;
     exportJSON(): SerializedListItemNode;
     append(...nodes: LexicalNode[]): this;
     replace<N extends LexicalNode>(replaceWithNode: N, includeChildren?: boolean): N;
@@ -39,11 +40,10 @@ export declare class ListItemNode extends ElementNode {
     toggleChecked(): void;
     getIndent(): number;
     setIndent(indent: number): this;
-    insertBefore(nodeToInsert: LexicalNode): LexicalNode;
     canInsertAfter(node: LexicalNode): boolean;
     canReplaceWith(replacement: LexicalNode): boolean;
     canMergeWith(node: LexicalNode): boolean;
-    extractWithChild(child: LexicalNode, selection: RangeSelection | NodeSelection | GridSelection): boolean;
+    extractWithChild(child: LexicalNode, selection: BaseSelection): boolean;
     isParentRequired(): true;
     createParentElementNode(): ElementNode;
 }

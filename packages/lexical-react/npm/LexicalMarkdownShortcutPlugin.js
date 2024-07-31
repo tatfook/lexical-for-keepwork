@@ -3,7 +3,9 @@
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
+ *
  */
+
 'use strict'
-const LexicalMarkdownShortcutPlugin = ['development', 'test'].includes(process.env.NODE_ENV) ? require('./LexicalMarkdownShortcutPlugin.dev.js') : require('./LexicalMarkdownShortcutPlugin.prod.js')
+const LexicalMarkdownShortcutPlugin = ['development', 'test'].includes(process.env.NODE_ENV) ? require('./LexicalMarkdownShortcutPlugin.dev.js') : require('./LexicalMarkdownShortcutPlugin.prod.js');
 module.exports = LexicalMarkdownShortcutPlugin;

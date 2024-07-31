@@ -3,7 +3,9 @@
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
+ *
  */
+
 'use strict'
-const Lexical = ['development', 'test'].includes(process.env.NODE_ENV) ? require('./Lexical.dev.js') : require('./Lexical.prod.js')
+const Lexical = ['development', 'test'].includes(process.env.NODE_ENV) ? require('./Lexical.dev.js') : require('./Lexical.prod.js');
 module.exports = Lexical;

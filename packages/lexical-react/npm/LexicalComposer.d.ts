@@ -5,27 +5,22 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-/// <reference types="react" />
-import { EditorState, EditorThemeClasses, Klass, LexicalEditor, LexicalNode } from 'lexical';
+import { EditorState, EditorThemeClasses, HTMLConfig, Klass, LexicalEditor, LexicalNode, LexicalNodeReplacement } from 'lexical';
+import * as React from 'react';
 export type InitialEditorStateType = null | string | EditorState | ((editor: LexicalEditor) => void);
 export type InitialConfigType = Readonly<{
     editor__DEPRECATED?: LexicalEditor | null;
     namespace: string;
-    nodes?: ReadonlyArray<Klass<LexicalNode> | {
-        replace: Klass<LexicalNode>;
-        with: <T extends {
-            new (...args: any): any;
-        }>(node: InstanceType<T>) => LexicalNode;
-    }>;
+    nodes?: ReadonlyArray<Klass<LexicalNode> | LexicalNodeReplacement>;
     onError: (error: Error, editor: LexicalEditor) => void;
     editable?: boolean;
     theme?: EditorThemeClasses;
     editorState?: InitialEditorStateType;
     ignoreMutationDOMChanges?: (node: Node) => boolean;
+    html?: HTMLConfig;
 }>;
-type Props = {
-    children: JSX.Element | string | (JSX.Element | string)[];
+type Props = React.PropsWithChildren<{
     initialConfig: InitialConfigType;
-};
+}>;
 export declare function LexicalComposer({ initialConfig, children }: Props): JSX.Element;
 export {};

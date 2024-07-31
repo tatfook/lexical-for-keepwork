@@ -10,10 +10,10 @@ import type { EditorState } from './LexicalEditorState';
 import type { NodeKey } from './LexicalNode';
 import type { ElementNode } from './nodes/LexicalElementNode';
 import type { TextFormatType } from './nodes/LexicalTextNode';
-import { DEPRECATED_GridCellNode, DEPRECATED_GridNode, DEPRECATED_GridRowNode, TextNode } from '.';
+import { TextNode } from '.';
 import { LexicalNode } from './LexicalNode';
 export type TextPointType = {
-    _selection: RangeSelection | GridSelection;
+    _selection: BaseSelection;
     getNode: () => TextNode;
     is: (point: PointType) => boolean;
     isBefore: (point: PointType) => boolean;
@@ -23,7 +23,7 @@ export type TextPointType = {
     type: 'text';
 };
 export type ElementPointType = {
-    _selection: RangeSelection | GridSelection;
+    _selection: BaseSelection;
     getNode: () => ElementNode;
     is: (point: PointType) => boolean;
     isBefore: (point: PointType) => boolean;
@@ -33,39 +33,47 @@ export type ElementPointType = {
     type: 'element';
 };
 export type PointType = TextPointType | ElementPointType;
-export type GridMapValueType = {
-    cell: DEPRECATED_GridCellNode;
-    startRow: number;
-    startColumn: number;
-};
-export type GridMapType = Array<Array<GridMapValueType>>;
 export declare class Point {
     key: NodeKey;
     offset: number;
     type: 'text' | 'element';
-    _selection: RangeSelection | GridSelection | null;
+    _selection: BaseSelection | null;
     constructor(key: NodeKey, offset: number, type: 'text' | 'element');
     is(point: PointType): boolean;
     isBefore(b: PointType): boolean;
     getNode(): LexicalNode;
     set(key: NodeKey, offset: number, type: 'text' | 'element'): void;
 }
+export declare function $createPoint(key: NodeKey, offset: number, type: 'text' | 'element'): PointType;
 export declare function $moveSelectionPointToEnd(point: PointType, node: LexicalNode): void;
 export interface BaseSelection {
-    clone(): BaseSelection;
+    _cachedNodes: Array<LexicalNode> | null;
     dirty: boolean;
+    clone(): BaseSelection;
     extract(): Array<LexicalNode>;
     getNodes(): Array<LexicalNode>;
     getTextContent(): string;
+    insertText(text: string): void;
     insertRawText(text: string): void;
-    is(selection: null | RangeSelection | NodeSelection | GridSelection): boolean;
+    is(selection: null | BaseSelection): boolean;
+    insertNodes(nodes: Array<LexicalNode>): void;
+    getStartEndPoints(): null | [PointType, PointType];
+    isCollapsed(): boolean;
+    isBackward(): boolean;
+    getCachedNodes(): LexicalNode[] | null;
+    setCachedNodes(nodes: LexicalNode[] | null): void;
 }
 export declare class NodeSelection implements BaseSelection {
     _nodes: Set<NodeKey>;
+    _cachedNodes: Array<LexicalNode> | null;
     dirty: boolean;
-    _cachedNodes: null | Array<LexicalNode>;
     constructor(objects: Set<NodeKey>);
-    is(selection: null | RangeSelection | NodeSelection | GridSelection): boolean;
+    getCachedNodes(): LexicalNode[] | null;
+    setCachedNodes(nodes: LexicalNode[] | null): void;
+    is(selection: null | BaseSelection): boolean;
+    isCollapsed(): boolean;
+    isBackward(): boolean;
+    getStartEndPoints(): null;
     add(key: NodeKey): void;
     delete(key: NodeKey): void;
     clear(): void;
@@ -74,66 +82,28 @@ export declare class NodeSelection implements BaseSelection {
     extract(): Array<LexicalNode>;
     insertRawText(text: string): void;
     insertText(): void;
-    insertNodes(nodes: Array<LexicalNode>, selectStart?: boolean): boolean;
+    insertNodes(nodes: Array<LexicalNode>): void;
     getNodes(): Array<LexicalNode>;
     getTextContent(): string;
 }
 export declare function $isRangeSelection(x: unknown): x is RangeSelection;
-export type GridSelectionShape = {
-    fromX: number;
-    fromY: number;
-    toX: number;
-    toY: number;
-};
-export declare function DEPRECATED_$getGridCellNodeRect(GridCellNode: DEPRECATED_GridCellNode): {
-    rowIndex: number;
-    columnIndex: number;
-    rowSpan: number;
-    colSpan: number;
-} | null;
-export declare class GridSelection implements BaseSelection {
-    gridKey: NodeKey;
-    anchor: PointType;
-    focus: PointType;
-    dirty: boolean;
-    _cachedNodes: Array<LexicalNode> | null;
-    constructor(gridKey: NodeKey, anchor: PointType, focus: PointType);
-    is(selection: null | RangeSelection | NodeSelection | GridSelection): boolean;
-    set(gridKey: NodeKey, anchorCellKey: NodeKey, focusCellKey: NodeKey): void;
-    clone(): GridSelection;
-    isCollapsed(): boolean;
-    isBackward(): boolean;
-    getCharacterOffsets(): [number, number];
-    extract(): Array<LexicalNode>;
-    insertRawText(text: string): void;
-    insertText(): void;
-    insertNodes(nodes: Array<LexicalNode>, selectStart?: boolean): boolean;
-    getShape(): GridSelectionShape;
-    getNodes(): Array<LexicalNode>;
-    getTextContent(): string;
-}
-export declare function DEPRECATED_$isGridSelection(x: unknown): x is GridSelection;
 export declare class RangeSelection implements BaseSelection {
-    anchor: PointType;
-    focus: PointType;
-    dirty: boolean;
     format: number;
     style: string;
-    _cachedNodes: null | Array<LexicalNode>;
+    anchor: PointType;
+    focus: PointType;
+    _cachedNodes: Array<LexicalNode> | null;
+    dirty: boolean;
     constructor(anchor: PointType, focus: PointType, format: number, style: string);
+    getCachedNodes(): LexicalNode[] | null;
+    setCachedNodes(nodes: LexicalNode[] | null): void;
     /**
      * Used to check if the provided selections is equal to this one by value,
      * inluding anchor, focus, format, and style properties.
      * @param selection - the Selection to compare this one to.
      * @returns true if the Selections are equal, false otherwise.
      */
-    is(selection: null | RangeSelection | NodeSelection | GridSelection): boolean;
-    /**
-     * Returns whether the Selection is "backwards", meaning the focus
-     * logically precedes the anchor in the EditorState.
-     * @returns true if the Selection is backwards, false otherwise.
-     */
-    isBackward(): boolean;
+    is(selection: null | BaseSelection): boolean;
     /**
      * Returns whether the Selection is "collapsed", meaning the anchor and focus are
      * the same node and have the same offset.
@@ -227,28 +197,19 @@ export declare class RangeSelection implements BaseSelection {
      * should be changed, replaced, or moved to accomodate the incoming ones.
      *
      * @param nodes - the nodes to insert
-     * @param selectStart - whether or not to select the start after the insertion.
-     * @returns true if the nodes were inserted successfully, false otherwise.
      */
-    insertNodes(nodes: Array<LexicalNode>, selectStart?: boolean): boolean;
+    insertNodes(nodes: Array<LexicalNode>): void;
     /**
      * Inserts a new ParagraphNode into the EditorState at the current Selection
+     *
+     * @returns the newly inserted node.
      */
-    insertParagraph(): void;
+    insertParagraph(): ElementNode | null;
     /**
      * Inserts a logical linebreak, which may be a new LineBreakNode or a new ParagraphNode, into the EditorState at the
      * current Selection.
-     *
-     * @param selectStart whether or not to select the start of the insertion range after the operation completes.
      */
     insertLineBreak(selectStart?: boolean): void;
-    /**
-     * Returns the character-based offsets of the Selection, accounting for non-text Points
-     * by using the children size or text content.
-     *
-     * @returns the character offsets for the Selection
-     */
-    getCharacterOffsets(): [number, number];
     /**
      * Extracts the nodes in the Selection, splitting nodes where necessary
      * to get offset-level precision.
@@ -266,6 +227,15 @@ export declare class RangeSelection implements BaseSelection {
      * @param granularity the granularity at which to apply the modification
      */
     modify(alter: 'move' | 'extend', isBackward: boolean, granularity: 'character' | 'word' | 'lineboundary'): void;
+    /**
+     * Helper for handling forward character and word deletion that prevents element nodes
+     * like a table, columns layout being destroyed
+     *
+     * @param anchor the anchor
+     * @param anchorNode the anchor node in the selection
+     * @param isBackward whether or not selection is backwards
+     */
+    forwardDeletion(anchor: PointType, anchorNode: TextNode | ElementNode, isBackward: boolean): boolean;
     /**
      * Performs one logical character deletion operation on the EditorState based on the current Selection.
      * Handles different node types.
@@ -287,23 +257,29 @@ export declare class RangeSelection implements BaseSelection {
      * @param isBackward whether or not the selection is backwards.
      */
     deleteWord(isBackward: boolean): void;
+    /**
+     * Returns whether the Selection is "backwards", meaning the focus
+     * logically precedes the anchor in the EditorState.
+     * @returns true if the Selection is backwards, false otherwise.
+     */
+    isBackward(): boolean;
+    getStartEndPoints(): null | [PointType, PointType];
 }
 export declare function $isNodeSelection(x: unknown): x is NodeSelection;
+export declare function $getCharacterOffsets(selection: BaseSelection): [number, number];
 export declare function $isBlockElementNode(node: LexicalNode | null | undefined): node is ElementNode;
-export declare function internalMakeRangeSelection(anchorKey: NodeKey, anchorOffset: number, focusKey: NodeKey, focusOffset: number, anchorType: 'text' | 'element', focusType: 'text' | 'element'): RangeSelection;
+export declare function $internalMakeRangeSelection(anchorKey: NodeKey, anchorOffset: number, focusKey: NodeKey, focusOffset: number, anchorType: 'text' | 'element', focusType: 'text' | 'element'): RangeSelection;
 export declare function $createRangeSelection(): RangeSelection;
 export declare function $createNodeSelection(): NodeSelection;
-export declare function DEPRECATED_$createGridSelection(): GridSelection;
-export declare function internalCreateSelection(editor: LexicalEditor): null | RangeSelection | NodeSelection | GridSelection;
-export declare function internalCreateRangeSelection(lastSelection: null | RangeSelection | NodeSelection | GridSelection, domSelection: Selection | null, editor: LexicalEditor): null | RangeSelection;
-export declare function $getSelection(): null | RangeSelection | NodeSelection | GridSelection;
-export declare function $getPreviousSelection(): null | RangeSelection | NodeSelection | GridSelection;
+export declare function $internalCreateSelection(editor: LexicalEditor): null | BaseSelection;
+export declare function $createRangeSelectionFromDom(domSelection: Selection | null, editor: LexicalEditor): null | RangeSelection;
+export declare function $internalCreateRangeSelection(lastSelection: null | BaseSelection, domSelection: Selection | null, editor: LexicalEditor, event: UIEvent | Event | null): null | RangeSelection;
+export declare function $getSelection(): null | BaseSelection;
+export declare function $getPreviousSelection(): null | BaseSelection;
 export declare function $updateElementSelectionOnCreateDeleteNode(selection: RangeSelection, parentNode: LexicalNode, nodeOffset: number, times?: number): void;
 export declare function applySelectionTransforms(nextEditorState: EditorState, editor: LexicalEditor): void;
 export declare function moveSelectionPointToSibling(point: PointType, node: LexicalNode, parent: ElementNode, prevSibling: LexicalNode | null, nextSibling: LexicalNode | null): void;
 export declare function adjustPointOffsetForMergedSibling(point: PointType, isBefore: boolean, key: NodeKey, target: TextNode, textLength: number): void;
-export declare function updateDOMSelection(prevSelection: RangeSelection | NodeSelection | GridSelection | null, nextSelection: RangeSelection | NodeSelection | GridSelection | null, editor: LexicalEditor, domSelection: Selection, tags: Set<string>, rootElement: HTMLElement, nodeCount: number): void;
-export declare function $insertNodes(nodes: Array<LexicalNode>, selectStart?: boolean): boolean;
+export declare function updateDOMSelection(prevSelection: BaseSelection | null, nextSelection: BaseSelection | null, editor: LexicalEditor, domSelection: Selection, tags: Set<string>, rootElement: HTMLElement, nodeCount: number): void;
+export declare function $insertNodes(nodes: Array<LexicalNode>): void;
 export declare function $getTextContent(): string;
-export declare function DEPRECATED_$computeGridMap(grid: DEPRECATED_GridNode, cellA: DEPRECATED_GridCellNode, cellB: DEPRECATED_GridCellNode): [GridMapType, GridMapValueType, GridMapValueType];
-export declare function DEPRECATED_$getNodeTriplet(source: PointType | LexicalNode | DEPRECATED_GridCellNode): [DEPRECATED_GridCellNode, DEPRECATED_GridRowNode, DEPRECATED_GridNode];

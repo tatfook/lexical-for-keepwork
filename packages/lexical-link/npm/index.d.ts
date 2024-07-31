@@ -1,4 +1,3 @@
-/** @module @lexical/link */
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
@@ -6,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-import type { DOMConversionMap, EditorConfig, GridSelection, LexicalCommand, LexicalNode, NodeKey, NodeSelection, RangeSelection, SerializedElementNode } from 'lexical';
+import type { BaseSelection, DOMConversionMap, EditorConfig, LexicalCommand, LexicalNode, NodeKey, RangeSelection, SerializedElementNode } from 'lexical';
 import { ElementNode, Spread } from 'lexical';
 export type LinkAttributes = {
     rel?: null | string;
@@ -43,12 +42,12 @@ export declare class LinkNode extends ElementNode {
     setRel(rel: null | string): void;
     getTitle(): null | string;
     setTitle(title: null | string): void;
-    insertNewAfter(selection: RangeSelection, restoreSelection?: boolean): null | ElementNode;
+    insertNewAfter(_: RangeSelection, restoreSelection?: boolean): null | ElementNode;
     canInsertTextBefore(): false;
     canInsertTextAfter(): false;
     canBeEmpty(): false;
     isInline(): true;
-    extractWithChild(child: LexicalNode, selection: RangeSelection | NodeSelection | GridSelection, destination: 'clone' | 'html'): boolean;
+    extractWithChild(child: LexicalNode, selection: BaseSelection, destination: 'clone' | 'html'): boolean;
 }
 /**
  * Takes a URL and creates a LinkNode.
@@ -95,4 +94,6 @@ export declare const TOGGLE_LINK_COMMAND: LexicalCommand<string | ({
  * @param url - The URL the link directs to.
  * @param attributes - Optional HTML a tag attributes. { target, rel, title }
  */
-export declare function toggleLink(url: null | string, attributes?: LinkAttributes): void;
+export declare function $toggleLink(url: null | string, attributes?: LinkAttributes): void;
+/** @deprecated renamed to {@link $toggleLink} by @lexical/eslint-plugin rules-of-lexical */
+export declare const toggleLink: typeof $toggleLink;

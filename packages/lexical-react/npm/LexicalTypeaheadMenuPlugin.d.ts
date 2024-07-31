@@ -7,11 +7,11 @@
  */
 /// <reference types="react" />
 import type { MenuRenderFn, MenuResolution, MenuTextMatch, TriggerFn } from './shared/LexicalMenu';
-import { LexicalCommand, TextNode } from 'lexical';
+import { CommandListenerPriority, LexicalCommand, TextNode } from 'lexical';
 import { MenuOption } from './shared/LexicalMenu';
 export declare const PUNCTUATION = "\\.,\\+\\*\\?\\$\\@\\|#{}\\(\\)\\^\\-\\[\\]\\\\/!%'\"~=<>_:;";
 export declare function getScrollParent(element: HTMLElement, includeHidden: boolean): HTMLElement | HTMLBodyElement;
-export declare function useDynamicPositioning(resolution: MenuResolution | null, targetElement: HTMLElement | null, onReposition: () => void, onVisibilityChange?: (isInView: boolean) => void): void;
+export { useDynamicPositioning } from './shared/LexicalMenu';
 export declare const SCROLL_TYPEAHEAD_OPTION_INTO_VIEW_COMMAND: LexicalCommand<{
     index: number;
     option: MenuOption;
@@ -29,6 +29,8 @@ export type TypeaheadMenuPluginProps<TOption extends MenuOption> = {
     onOpen?: (resolution: MenuResolution) => void;
     onClose?: () => void;
     anchorClassName?: string;
+    commandPriority?: CommandListenerPriority;
+    parent?: HTMLElement;
 };
-export declare function LexicalTypeaheadMenuPlugin<TOption extends MenuOption>({ options, onQueryChange, onSelectOption, onOpen, onClose, menuRenderFn, triggerFn, anchorClassName, }: TypeaheadMenuPluginProps<TOption>): JSX.Element | null;
+export declare function LexicalTypeaheadMenuPlugin<TOption extends MenuOption>({ options, onQueryChange, onSelectOption, onOpen, onClose, menuRenderFn, triggerFn, anchorClassName, commandPriority, parent, }: TypeaheadMenuPluginProps<TOption>): JSX.Element | null;
 export { MenuOption, MenuRenderFn, MenuResolution, MenuTextMatch, TriggerFn };

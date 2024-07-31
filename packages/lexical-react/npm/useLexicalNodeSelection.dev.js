@@ -3,7 +3,9 @@
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
+ *
  */
+
 'use strict';
 
 var LexicalComposerContext = require('@lexical/react/LexicalComposerContext');
@@ -21,15 +23,12 @@ var react = require('react');
 function isNodeSelected(editor, key) {
   return editor.getEditorState().read(() => {
     const node = lexical.$getNodeByKey(key);
-
     if (node === null) {
       return false;
     }
-
     return node.isSelected();
   });
 }
-
 function useLexicalNodeSelection(key) {
   const [editor] = LexicalComposerContext.useLexicalComposerContext();
   const [isSelected, setIsSelected] = react.useState(() => isNodeSelected(editor, key));
@@ -48,23 +47,22 @@ function useLexicalNodeSelection(key) {
   const setSelected = react.useCallback(selected => {
     editor.update(() => {
       let selection = lexical.$getSelection();
-
       if (!lexical.$isNodeSelection(selection)) {
         selection = lexical.$createNodeSelection();
         lexical.$setSelection(selection);
       }
-
-      if (selected) {
-        selection.add(key);
-      } else {
-        selection.delete(key);
+      if (lexical.$isNodeSelection(selection)) {
+        if (selected) {
+          selection.add(key);
+        } else {
+          selection.delete(key);
+        }
       }
     });
   }, [editor, key]);
   const clearSelected = react.useCallback(() => {
     editor.update(() => {
       const selection = lexical.$getSelection();
-
       if (lexical.$isNodeSelection(selection)) {
         selection.clear();
       }

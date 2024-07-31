@@ -5,11 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
+import type { KlassConstructor } from '../LexicalEditor';
 import type { DOMConversionMap, NodeKey, SerializedLexicalNode } from '../LexicalNode';
 import { LexicalNode } from '../LexicalNode';
 export type SerializedLineBreakNode = SerializedLexicalNode;
 /** @noInheritDoc */
 export declare class LineBreakNode extends LexicalNode {
+    ['constructor']: KlassConstructor<typeof LineBreakNode>;
     static getType(): string;
     static clone(node: LineBreakNode): LineBreakNode;
     constructor(key?: NodeKey);
