@@ -356,7 +356,7 @@ function isGitHubCodeTable(table) {
  *
  */
 
-const DEFAULT_CODE_LANGUAGE = 'javascript';
+const DEFAULT_CODE_LANGUAGE = 'plain';
 const CODE_LANGUAGE_FRIENDLY_NAME_MAP = {
   c: 'C',
   clike: 'C-like',
@@ -663,9 +663,9 @@ function codeNodeTransform(node, editor, tokenizer) {
   nodesCurrentlyHighlighting.add(nodeKey);
 
   // When new code block inserted it might not have language selected
-  if (node.getLanguage() === undefined) {
-    node.setLanguage(tokenizer.defaultLanguage);
-  }
+  // if (node.getLanguage() === undefined) {
+  //   node.setLanguage(tokenizer.defaultLanguage);
+  // }
 
   // Using nested update call to pass `skipTransforms` since we don't want
   // each individual codehighlight node to be transformed again as it's already

@@ -8,7 +8,7 @@
 import type { EditorConfig, LexicalNode, LineBreakNode, NodeKey, SerializedTextNode, Spread, TabNode } from 'lexical';
 import './CodeHighlighterPrism';
 import { ElementNode, TextNode } from 'lexical';
-export declare const DEFAULT_CODE_LANGUAGE = "javascript";
+export declare const DEFAULT_CODE_LANGUAGE = "plain";
 type SerializedCodeHighlightNode = Spread<{
     highlightType: string | null | undefined;
 }, SerializedTextNode>;
