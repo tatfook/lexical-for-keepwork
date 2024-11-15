@@ -266,9 +266,9 @@ function codeNodeTransform(
   nodesCurrentlyHighlighting.add(nodeKey);
 
   // When new code block inserted it might not have language selected
-  if (node.getLanguage() === undefined) {
-    node.setLanguage(tokenizer.defaultLanguage);
-  }
+  // if (node.getLanguage() === undefined) {
+  //   node.setLanguage(tokenizer.defaultLanguage);
+  // }
 
   // Using nested update call to pass `skipTransforms` since we don't want
   // each individual codehighlight node to be transformed again as it's already

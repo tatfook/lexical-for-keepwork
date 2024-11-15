@@ -32,7 +32,7 @@ import {
 
 import {$createCodeNode} from './CodeNode';
 
-export const DEFAULT_CODE_LANGUAGE = 'javascript';
+export const DEFAULT_CODE_LANGUAGE = 'plain';
 
 type SerializedCodeHighlightNode = Spread<
   {
